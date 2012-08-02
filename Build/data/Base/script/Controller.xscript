@@ -1,0 +1,16 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Controller.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal abstract class Controller : FrameObject
+{
+    internal int NumCharacters();
+    internal Character GetCharacter(int id=0);
+
+    implementable void GotControl(Character character)     {}
+    implementable void LosingControl(Character character)  {}
+};

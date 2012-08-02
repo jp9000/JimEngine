@@ -1,0 +1,150 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ParticleEmitter.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+class ParticleEmitter : Entity
+{
+    property string  ParticleClass                                                       <description="Class to be used for each particle">;
+    property Texture ParticleTexture                                                     <description="Sprite texture">;
+    property icolor  ParticleColor                                                       <description="Color of the particle">;
+    property float   ParticleSize                <type=scroller(0.01f, 100.0f, 0.01f)>   <description="Initial particle size">;
+    property float   ParticleSpeed               <type=scroller(0.0f, 100.0f, 0.01f)>    <description="Initial particle speed, units per second">;
+    property float   ParticleRotation            <type=scroller(0.0f, 360.0f, 0.1f)>     <description="Initial particle rotation (degrees)">;
+    property float   ParticleRotationRate        <type=scroller(-360.0f, 360.0f, 1f)>    <description="Degrees per second to rotate (degrees per second)">;
+    property float   ParticleFriction            <type=scroller(-100.0f, 100.0f, 0.1f)>  <description="Modifies how much speed should be dampened when the speed increases">;
+    property float   ParticleMass                <type=scroller(-100.0f, 100.0f, 0.1f)>  <description="Mass of particle (can be negative as well)">;
+    property float   ParticleGrowth              <type=scroller(-100.0f, 100.0f, 0.1f)>  <description="Defines how many units a particle should grow per second">;
+    property float   ParticleLifetime            <type=scroller(0.1, 20, 0.1)>           <description="Time in seconds until particle dies">;
+    property float   ParticleSpawnTime           <type=scroller(0.04, 10, 0.01)>         <description="Time in seconds between creation of each particle">;
+                    
+    property float   ParticleRandSpeed           <type=scroller(0.0f, 100.0f, 0.1f)>     <description="Maximum particle speed randomization">;
+    property float   ParticleRandRotation        <type=scroller(0.0f, 360.0f, 0.1f)>     <description="Maximum particle rotation randomization (degrees)">;
+    property float   ParticleRandRotationRate    <type=scroller(0, 360.0f, 1f)>          <description="Maximum particle rotation rate randomization (degrees per second)">;
+    property float   ParticleRandGrowth          <type=scroller(-100.0f, 100.0f, 0.1f)>  <description="Maximum particle growth randomization">;
+    property float   ParticleRandLifetime        <type=scroller(0, 20, 0.1)>             <description="Maximum particle life time randomization">;
+    property int     ParticleRandDirection       <type=scroller(0, 100, 1)>              <description="0-100% randomizing of direction">;
+    property float   ParticleRandSpawnTime       <type=scroller(0, 10, 0.01)>            <description="Maximum spawn time randomization">;
+                    
+    property bool    bFade                                                               <description="Whether to have particle fade out">;
+
+    PhyShape particleShape;
+
+    float curSpawnTime;
+    float curTime;
+
+    ParticleEmitter()
+    {
+        ParticleClass = "SpriteParticle";
+        ParticleTexture = GetTexture("Base:Default/default_particle.tga");
+        ParticleColor = 0xFFFFFFFF;
+        ParticleSize = 5.0f;
+        ParticleSpeed = 20.0f;
+        ParticleMass = 3.0f;
+        ParticleLifetime = 2.0f;
+        ParticleSpawnTime = 0.4f;
+        bFade = true;
+    }
+
+    void Init()
+    {
+        super.Init();
+
+        curSpawnTime = ParticleSpawnTime;
+        particleShape = Physics().MakeSphere(0.5f);
+    }
+
+    void Destroy()
+    {
+        if(particleShape)
+            particleShape.Release();
+
+        if(ParticleTexture)
+            ReleaseTexture(ParticleTexture);
+
+        super.Destroy();
+    }
+
+    void Tick(float fTime)
+    {
+        super.Tick(fTime);
+
+        curTime += fTime;
+
+        if(fTime > 2.0)
+            curTime = 0.0f;
+
+        if(ParticleClass != null && (curTime >= curSpawnTime))
+        {
+            Particle newParticle = dynamic_cast<Particle>(CreateFactoryObject(ParticleClass, false));
+
+            if(!newParticle)
+                return;
+
+            particleShape.AddReference();
+            newParticle.phyShape = particleShape;
+
+            newParticle.SetPos(GetWorldPos());
+            newParticle.mass = ParticleMass;
+            newParticle.curSize = ParticleSize;
+
+            Vect dir = Vect.Zero();
+
+            if(ParticleRandDirection != 0.0)
+            {
+                float fRand;
+                Vect randDir;
+
+                if(ParticleRandDirection > 100)
+                    ParticleRandDirection = 100;
+
+                float fMul = cast<float>(ParticleRandDirection)*0.01;
+
+                dir *= 1.0f-fMul;
+                dir += (RandomVect()*fMul);
+
+                dir.Norm();
+            }
+
+            newParticle.Vel = (dir*(ParticleSpeed));
+            if(ParticleRandSpeed != 0.0f)
+                newParticle.Vel.z -= RandomFloat(true)*ParticleRandSpeed;
+
+            newParticle.endTime = ParticleLifetime;
+            if(ParticleRandLifetime != 0.0f)
+                newParticle.endTime += RandomFloat(true)*ParticleRandLifetime;
+
+            newParticle.growth = ParticleGrowth;
+            if(ParticleRandGrowth != 0.0f)
+                newParticle.growth += RandomFloat(true)*ParticleRandGrowth;
+
+            newParticle.rotAngle = ParticleRotation;
+            if(ParticleRandRotation != 0.0f)
+                newParticle.rotAngle += RandomFloat(true)*ParticleRandRotation;
+
+            newParticle.rotRate = ParticleRotationRate;
+            if(ParticleRandRotationRate != 0.0f)
+                newParticle.rotRate += RandomFloat()*ParticleRandRotationRate;
+
+            newParticle.friction = ParticleFriction;
+            newParticle.bFade = bFade;
+            newParticle.sprite = ParticleTexture;
+            newParticle.color = ParticleColor;
+
+            Matrix PSTransform = GetLocalRot();
+            newParticle.Vel.TransformVector(PSTransform.GetTranspose());
+
+            curTime = 0;
+
+            curSpawnTime = ParticleSpawnTime;
+            if(ParticleRandSpawnTime != 0.0f)
+                curSpawnTime += (RandomFloat()*ParticleRandSpawnTime);
+
+            newParticle.InitializeObject();
+        }
+    }
+};

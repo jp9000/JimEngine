@@ -1,0 +1,36 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  PathSystem.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+enum TraverseType
+{
+    Traverse_Recalculate,
+    Traverse_Continue,
+    Traverse_Stop,
+    Traverse_End
+};
+
+internal abstract class AIPath : Object
+{
+    internal bool  AdjustedTarget();
+    internal Vect  GetTargetPos();
+
+    internal void  ResetPath();
+    internal float GetCurDist();
+    internal float GetTotalDist();
+    internal Vect  GetCurPos();
+
+    internal int   GetCurNode();
+    internal int   GetNextNode();
+    internal bool  PathEnded();
+
+    internal int   NumNodes();
+    internal bool  GetNodePos(int nodeID, out Vect pos);
+
+    internal TraverseType TraversePath(float moveDist, int targetNodeID=-1);
+};

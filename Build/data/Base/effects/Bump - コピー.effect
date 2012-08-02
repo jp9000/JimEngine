@@ -1,0 +1,40 @@
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Standard bump mapping Shader
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+#include "lightParams.inc"
+
+//=================================================================
+//  Lighting Function
+//=================================================================
+
+float4 DoLighting(float2 TexCoord,
+                  float3 LightVector,
+                  float3 HalfVector,
+                  float3 lightColor,
+                  float specularLevel,
+                  float specularPower)
+{
+    float4 output;
+
+    float4 diffuse      = diffuseTexture.Sample(textureSampler, TexCoord);
+    float4 normalIn     = normalMap.Sample(textureSampler, TexCoord);
+    float3 specularIn   = specularMap.Sample(textureSampler, TexCoord);
+
+    float3 normal = 2.0*(normalIn.xyz-0.5);
+
+    float3 shade = saturate(dot(normalize(LightVector), normal));
+
+    float3 specular = saturate(dot(normalize(HalfVector), normal));
+    specular  = pow(specular, specularPower);
+    specular *= specularIn.xyz;
+    specular  = saturate(specular*specularLevel);
+
+    output.xyz = ((diffuse.xyz*shade)+specular)*lightColor;
+    output.a = diffuse.a;
+
+    return output;
+}
+
+#include "lightFuncs.inc"

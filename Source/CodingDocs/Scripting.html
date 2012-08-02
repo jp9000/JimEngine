@@ -1,0 +1,428 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li class="test">Scripting/Class Vars</li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Scripting and Class Property Variables (Script.h)</h2>
+
+<p>The first thign we'll be discussing is class property variables.  Class property variables are defined through a set of macros in your class definitions as well as
+in your source files.  Class property variables allow certain class variables to be accessable to the user in the object properties dialog when you right click an object,
+and acan also be accessed in scripts.</p>
+
+<p>The scripting system itself is relatively flexable, but yet not quite as large scale as say something like unrealscript.
+How it works is that first, native functions as well as global script functions/structures/enums can be defined through
+the main scripting system.  You define these global functions/structures/enums through the ScriptSystem class (which is automatically created and assigned to the
+"Scripting" global engine variable).</p>
+<p>You then can create "scripts" with by creating Script objects, which then can be executed sort of like a regular function where ever you want the script to execute.
+The user can then be allowed modify a script by simply making it a class property variable, and then it will be accessable and editable though the level editor.</p>
+
+<p>The script language is C-like in nature.  It supports almost all of the C-style operators, keywords (if, while, do/while, switch, etc), and types (int, float, bool, etc).
+It treats strings (defined using the "string" type) in a java-like manner, in that you can use the =, +=, +, ==, and !=.</p>
+
+<p>Any class that is defined by the object system can
+be used by script by its name, and is internally handled as a pointer.  However, pointers and reference pointers are not used directly, and pointer operators are unnecessary and never used.</p>
+
+<hr /><!--======================================================================-->
+<h3>Declaring/Defining Class Property Variables</h3>
+
+<p>The Object class has the unique ability to use property variables.  These variables can be accessed by
+the user by the editor object properties dialog, by scripts, and by string value natively.</p>
+
+<p>All class property variables are public.  Do not use private/protected when declaring scripted variables because it'll
+most likely cause problems.  I would recommend defining these variables after your main class declaration macro.</p>
+
+<p>To use them, you must both declare and define them.  Declaring them is done typically inside the class definition, and definition is done
+in the source files.</p>
+
+<p>Here is an example of declaring property variables in the Light class:</p>
+
+<pre class="example">
+//Light.h
+
+class BASE_EXPORT Light : public Entity
+{
+    CLASS_DECLARE(Light, Entity);
+
+    DECLARE_VARS_BEGIN(Light)
+        BOOL        bCastShadows;
+        DWORD       color;
+        int         intensity;
+    DECLARE_VARS_END()
+
+    ...
+};
+
+</pre>
+
+<p>As you can see in the class declaration it's relatively straight forward.  However the more complicated part are
+the definition versions of these macros, which you use in the source.  Here shows the definition of these variables for the Light class:</p>
+
+<pre class="example">
+//Light.cpp
+
+#include &lt;Base.h&gt;
+
+CLASS_DEFINE(Light);
+
+DEFINE_VARS_BEGIN(Light)
+    DEFINE_VAR(bCastShadows,  BOOL_VAR)
+    DEFINE_VAR(color,         COLOR_VAR)
+    DEFINE_INT_SCROLLER_VAR(intensity, 1, 400, 1)
+DEFINE_VARS_END()
+
+...
+</pre>
+
+<p>Let me explain what these definition macros do.  In the editor, these will cause <var>bCastShadows</var> to appear as a checkbox,
+<var>color</var> to appear as a color control, and <var>intensity</var> to appear
+as an integer scroller with a minimum value of 1, maximum value of 400, and when the up/down scroller is clicked will
+cause the scroller to increment/decrement the value by 1 as designated by the last parameter.  Then these variables</p>
+
+<p>Below is a list of all the usable variable macros you can use:</p>
+
+<pre>DEFINE_VAR(varname, type)</pre>
+<p>Will define a regular variable.  The type value can be one of these following values:</p>
+<pre class="example">
+BOOL_VAR      //variable must be a BOOL/bool, appears as a checkbox in the editor
+INT_VAR       //variable must be an int, appears as an plain integer edit box in the editor
+FLOAT_VAR     //variable must be a float, appears as a plain floating point edit box in the editor
+VECT_VAR      //variable must be a Vect, does not show in the editor, meant for scripting/internal use
+COLOR_VAR     //variable must be a Color, appears as a color control in the editor and lets you select a color when clicked
+STRING_VAR    //variable must be a String, appears as a regular edit box in the editor
+</pre>
+
+<pre>DEFINE_TEXTURE_VAR(varname)</pre>
+<p>Variable must be a String.  In the editor displays as a read-only edit box with an button to browse for textures on the right</p>
+
+<pre>DEFINE_SOUND_VAR(varname)</pre>
+<p>Variable must be a String.  In the editor displays as a read-only edit box with an button to browse for sounds on the right</p>
+
+<pre>DEFINE_MUSIC_VAR(varname)</pre>
+<p>Variable must be a String.  In the editor displays as a read-only edit box with an button to browse for music files on the right</p>
+
+<pre>DEFINE_FLOAT_SCROLLER_VAR(varname, fMin, fMax, fInc)</pre>
+<p>Variable must be a float.  Appears as a float up/down scroller control, fMin is minimum value, fMax is maximum value, and fInc is the
+value which the user is allowed to increment it by.</p>
+
+<pre>DEFINE_INT_SCROLLER_VAR(varname, iMin, iMax, iInc)</pre>
+<p>Variable must be an int.  Appears as an integer up/down scroller control, iMin is minimum value, iMax is maximum value, and iInc is the
+value which the user is allowed to increment it by.</p>
+
+
+<hr /><!--======================================================================-->
+<h3>Object property access functions</h3>
+
+<p>Property variables are automatically managed in the editor and in script, but to access
+them in C++ you can use either them like any regular variable (because they are declared as such), or if
+they are of an outside library, you can indirectly access them using a string with these functions:</p>
+
+<pre>
+virtual BOOL&amp;   GetVarBool  (TSTR name);
+virtual int&amp;    GetVarInt   (TSTR name);
+virtual float&amp;  GetVarFloat (TSTR name);
+virtual Vect&amp;   GetVarVect  (TSTR name);
+virtual DWORD&amp;  GetVarColor (TSTR name);
+virtual String&amp; GetVarString(TSTR name);
+</pre>
+
+<p>This is a typical albiet rare example of their use in C++:</p>
+
+<pre class="example">
+Object *myOutsideObject = CreateFactoryObject(TEXT("MyOutsideModule:MyOutsideClass"), FALSE);
+BOOL &amp;bMyBoolValue = myOutsideObject-&gt;GetVarBool(TEXT("bMyBoolValue"));
+bMyBoolValue = TRUE;
+myOutsideObject-&gt;Init();
+</pre>
+
+
+<hr /><!--======================================================================-->
+<h3>CallStruct class</h3>
+
+<p>This class is used when you call a script, and as a parameter for native functions accessable through scripting.</p>
+
+<p>When using CallStruct to call a script, you will first want to use <var>SetNumParams</var> with the amount of numbers the script function requires.  Then you use the corresponding
+Set* functions or SetStruct to set that data for each parameter.  If the script returns a value, or modifies the parameters, you can access that return value or those parameters
+after the script completes by using the Get* functions or GetStruct with either <var>RETURNVAL</var> or by specifying the parameter name.  Parameter values <i>can</i> be modified by the script
+and those altered values can be accessed after if desired.</p>
+
+<p>When using CallStruct for a custom native function, you will want to use the Get* or GetStruct functions to retrieve your paramters for your native function, and then
+if the function has a return value, use Set* or SetStruct with <var>RETURNVAL</var>.  You can also modify parameter values and the script will modify whatever variable was sent for that parameter if one was used (only works when a single variable is used for the parameter, otherwise the altered value is ignored), so be cautious about setting parameter values unless you need multiple return values.</p>
+
+<p>CallStruct automatically frees all of its data on destruction.</p>
+
+<pre>class BASE_EXPORT CallStruct</pre>
+
+<pre>
+BOOL         GetBool     (int param) const;
+int          GetInt      (int param) const;
+float        GetFloat    (int param) const;
+Object*      GetObject   (int param) const;
+String       GetString   (int param) const;
+Vect2        GetVect2    (int param) const;
+Vect         GetVect     (int param) const;
+Color4       GetColor4   (int param) const;
+Quat         GetQuat     (int param) const;
+AxisAngle    GetAxisAngle(int param) const;
+Bounds       GetBounds   (int param) const;
+Plane        GetPlane    (int param) const;
+Matrix       GetMatrix   (int param) const;
+</pre>
+<p>Retrieves a parameter from the CallStruct.</p>
+
+<pre>
+void SetBool     (int param,       BOOL      val);
+void SetInt      (int param,       int       val);
+void SetFloat    (int param,       float     val);
+void SetObject   (int param,       Object*   val);
+void SetString   (int param, const String    &amp;val);
+void SetVect2    (int param, const Vect2     &amp;val);
+void SetVect     (int param, const Vect      &amp;val);
+void SetColor4   (int param, const Color4    &amp;val);
+void SetQuat     (int param, const Quat      &amp;val);
+void SetAxisAngle(int param, const AxisAngle &amp;val);
+void SetBounds   (int param, const Bounds    &amp;val);
+void SetPlane    (int param, const Plane     &amp;val);
+void SetMatrix   (int param, const Matrix    &amp;val);
+</pre>
+<p>Retrieves a parameter from the CallStruct</p>
+
+<pre>
+void GetStruct   (int param, void* lpVal, UINT size);
+void SetStruct   (int param, const void* lpVal, UINT size);
+</pre>
+
+<pre>
+inline BOOL IsValid(int param)
+inline BOOL HasParam(int param)
+</pre>
+<p>Checks to see if a value is valid, or if a parameter exists.  These are typically not necessary to call and are only used internally.</p>
+
+<pre>inline void SetNumParams(int num)</pre>
+<p>Sets the number of parameters.  Used before setting your CallStruct parameters when calling a script.</p>
+
+
+<hr /><!--======================================================================-->
+<h3>ScriptSystem class</h3>
+
+<p>This class is used to manage all global script information, such as native functions, global scripted functions, as well as global structures and enumerators.</p>
+
+<p>You'll want to define those things before calling any script that uses them.</p>
+
+<pre>class BASE_EXPORT ScriptSystem</pre>
+
+<pre>void AddNativeFunction(NATIVECALLBACK callback, CTSTR lpFunctionDef);</pre>
+<p>Adds a global native function which can be accessed by scripts.  <var>callback</var> is a callback function for the script, defined as:</p>
+
+<pre class="example">void XENAPI NativeScriptFunction(CallStruct &amp;callStruct);</pre>
+
+<p><var>lpFunctionDef</var> is the function definition as used by script, which defines the name, return value, and parameters of the function.  Here would be an example:</p>
+<pre class="example">Scripting-&gt;AddNativeFunction(myAddCallback, TEXT("float AddTwoFloats(float f1, float f2);"));</pre>
+
+<pre>
+BOOL AddGlobalDefsFromString(CTSTR lpCode, String &amp;errorList);
+BOOL AddGlobalDefsFromFile(CTSTR lpFile, String &amp;errorList);
+</pre>
+
+<p>Will compile and add global script definitions by a string or file.  If the functions return FALSE, compilation failed, nothing is added and <var>errorList</var> will contain
+the errors that occured in compilation.</p>
+
+<p>Here is an example of script stuff you might add with this function:</p>
+<pre class="example">
+struct MyScruct
+{
+    float x, y, z;
+};
+
+enum MyEnum
+{
+    enumval0,
+    enumval1,
+    enumval2,
+    enumval4=4,
+    enumval5
+};
+
+float MyGlobalFunctionThatReturnsXPlusY(MyScruct myVal1)
+{
+    return myVect.x+myVect.y;
+}
+</pre>
+<p>Then in any scripts you create, you will be able to use the structures, enums, and functions in any scripts defined thereafter.</p>
+
+
+<hr /><!--======================================================================-->
+<h3>Script class</h3>
+
+<p>This is the main class which is used to define script "events" which can that be defined by a script code.</p>
+
+<p>Before a script is executed (preferrably in the <var>Init</var> function of your class), you must use <var>SetScriptDefinition</var>
+to set the main function definition that is used for that script object.  The main function is the function which is called with the <var>CallScript</var> function
+to execute that script.  The function must exist in the script or compilation will fail.  All other functions defined in the script are local only to that script, and only usable to that script function.
+One important thing to note however, is that one can use a single script string/file for multiple script objects, so long as each of the main script functions for each of those objects are defined in that script.</p>
+
+<p>When editing code in the editor, if no prior code exists a bare function definition with that function will be present.</p>
+
+<p>The script is usually set by the user in the editor, or set programatically using the <var>SetScriptFrom*</var> functions.</p>
+
+<p>The script is compiled when called, or compiled with <var>Compile</var> beforehand.  The bytecode persists until the script is deleted.
+If the script is not defined, or compilation fails, <var>CallScript</var> will return FALSE.</p>
+
+<pre>class BASE_EXPORT Script</pre>
+
+<pre>void SetScriptDefinition(CTSTR lpFunctionDef);</pre>
+<p>Sets the main function definition for the script object. Example:</p>
+
+<pre class="example">
+void MyCharacter::Init()
+{
+    Super::Init();
+    OnJump.SetScriptDefinition(TEXT("void OnJump(Entity object);"));
+}
+</pre>
+
+<pre>
+void SetScriptFromString(CTSTR lpString);
+void SetScriptFromFile(CTSTR lpFile);
+</pre>
+<p>Allows you to set the current script programmatically by a string or file name, though if the script object is an object property variable defined with the macros
+it will allow the user to edit the script making these functions unnecessary in that case.  Note that these do not compile the script, however.</p>
+
+<pre>BOOL IsCompiled();</pre>
+<p>Returns TRUE if the script is currently compiled, FALSE if not.</p>
+
+<pre>BOOL Compile(String &amp;strError);</pre>
+<p>Compiles the script.  This will be automatically called in CallScript if not done manually.  Returns TRUE if compilation succeded,
+otherwise FALSE.  <var>strError</var> will contain the error/warning listing if any.</p>
+
+<pre>inline BOOL IsValid()</pre>
+<p>Returns TRUE if a script is valid, which means it either is successfully compiled, or hasn't failed a compile and has a valid script assigned to it.  If it failed a previous compile, or no script is assigned, this will return FALSE.</p>
+
+<pre>BOOL CallScript(CallStruct&amp; callData);</pre>
+<p>Calls the script.  You must set the parameters in callData according to the parameters set by the main function definition set by <var>SetScriptDefinition</var>.
+Will automatically compile if not yet compiled.  Returns TRUE if successful, along with the return value set in <var>callData</var> if any,
+otherwise returns FALSE if no script is set or compilation failed.</p>
+
+
+<hr /><!--======================================================================-->
+<h3>Structure operators</h3>
+
+<p>This required a section of its own because its a bit weird.  You should probably never need to use this functionality, but you <i>can</i>
+define operators for your structures, although it's slightly differently than in C++.  Only modification (+, -, /, *, &lt;&lt;, &gt&gt), conditional
+(==, !=, &lt;=, &gt;=, &lt;, &gt;), and certain prefix (-, !, ~) operators can be implemented, assignment (=) however can only be implemented for
+different types.  If the appropriate arithmatic operator is set, then the corresponding assignment operator (+=, -=, /=, *=, &lt;&lt;=, &gt&gt=) will 
+also be functional.  The assignment operator (=) as stated can be implemented only for types other than the main type, with the paramter being the
+target type you wish to allow.  All other operators must have a first parameter type indentical to the return type.  Note that prefix operators and
+the assignment operator only have one parameter, where as all the rest have two.</p>
+
+<p>You can also set mutliple targets of your operators, so if you create
+a vector structure for example and want to be able to perform an addition with a float, int, or another structure, you may also do that.  Otherwise compilation will result
+in an error if used with an unimplemented operator target.</p>
+
+<p>Both native functions or normal script functions can be used as operators, so long as they have the proper definition.</p>
+
+<p>Here is an example of defining operators:</p>
+
+<pre class="example">
+struct Vect
+{
+    float x, y, z;
+};
+
+Vect operator+(Vect v1, Vect v2)  //Add Vect
+{
+    Vect out;
+
+    out.x = v1.x + v2.x;
+    out.y = v1.y + v2.y;
+    out.z = v1.z + v2.z;
+    return out;
+}
+
+Vect operator+(Vect v1, float f)  //Add float
+{
+    Vect out;
+
+    out.x = v1.x + f;
+    out.y = v1.y + f;
+    out.z = v1.z + f;
+    return out;
+}
+
+Vect operator-(Vect v1, Vect v2)  //Subtract Vect
+{
+    Vect out;
+
+    out.x = v1.x - v2.x;
+    out.y = v1.y - v2.y;
+    out.z = v1.z - v2.z;
+    return out;
+}
+
+Vect operator-(Vect v)  //Negate
+{
+    Vect out;
+
+    out.x = -v.x;
+    out.y = -v.y;
+    out.z = -v.z;
+    return out;
+}
+
+Vect operator=(float f)  //Using (=) with a float will now be valid
+{
+    Vect2 out;
+
+    out.x = f;
+    out.y = f;
+    out.z = f;
+    return out;
+}
+</pre>
+
+</div>
+
+</body>
+</html>
+

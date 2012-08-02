@@ -1,0 +1,131 @@
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Spherical Harmonic Lighting Shader (6-basis)
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+//=================================================================
+//  Internal Parameters
+//=================================================================
+
+uniform float4x4  ViewProj;
+uniform float4x4  World =
+{
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+};
+
+uniform float3    Scale = {1.0f, 1.0f, 1.0f};
+
+uniform float3    shVal[6];
+
+uniform texture1d attenuationMap;
+
+uniform texture2d diffuseTexture;
+uniform texture2d normalMap;
+
+
+//=================================================================
+//  Sampler States
+//=================================================================
+
+samplerstate textureSampler
+{
+    AddressU  = Wrap;
+    AddressV  = Wrap;
+    Filter    = Anisotropic;
+};
+
+
+//=================================================================
+//  Vertex Input
+//=================================================================
+
+struct Vertex {
+    float4 Position : POSITION;
+    float2 TexCoord : TEXCOORD0;
+    float3 Tangent  : TANGENT;
+    float3 Normal   : NORMAL;
+};
+
+struct PixelOutput {
+    float4 color : COLOR;
+};
+
+
+struct SHData {
+    float4 Position    : POSITION;
+    float2 TexCoord    : TEXCOORD0;
+    float3 TanU        : TEXCOORD1;
+    float3 TanV        : TEXCOORD2;
+    float3 TanW        : TEXCOORD3;
+};
+
+
+//=================================================================
+//  SH Pass
+//=================================================================
+
+SHData SH_VS(Vertex input)
+{
+    SHData PI;
+
+    float4 newPos  = input.Position;
+    newPos.xyz    *= Scale;
+
+    PI.Position = mul(mul(newPos, World), ViewProj);
+    PI.TexCoord = input.TexCoord;
+
+    float3x3 tanMatrix;
+    tanMatrix[0] = -input.Tangent;
+    tanMatrix[2] = input.Normal;
+    tanMatrix[1] = cross(tanMatrix[0], tanMatrix[2]);
+    //tanMatrix = transpose(tanMatrix);
+
+    PI.TanU = tanMatrix[0];
+    PI.TanV = tanMatrix[1];
+    PI.TanW = tanMatrix[2];
+
+    return PI;
+}
+
+PixelOutput SH_PS(SHData PI)
+{
+    PixelOutput PO;
+
+    float4 diffuse = diffuseTexture.Sample(textureSampler, PI.TexCoord);
+    float3 norm = normalMap.Sample(textureSampler, PI.TexCoord);
+    norm = 2.0*(norm-0.5);
+
+    float3x3 tanMatrix = {normalize(PI.TanU), normalize(PI.TanV), normalize(PI.TanW)};
+    norm = mul(norm, tanMatrix);
+
+    float3 shadeVal;
+    shadeVal  = shVal[0] * norm.x;
+    shadeVal += shVal[1] * norm.y;
+    shadeVal += shVal[2] * norm.z;
+    shadeVal += shVal[3] * abs(norm.x);
+    shadeVal += shVal[4] * abs(norm.y);
+    shadeVal += shVal[5] * abs(norm.z);
+    shadeVal = max(shadeVal, float3(0.0, 0.0, 0.0));
+
+    PO.color.xyz = diffuse.xyz*shadeVal;
+    PO.color.a = diffuse.a;
+
+    return PO;
+}
+
+//=================================================================
+//  Technique
+//=================================================================
+
+technique SH
+{
+    pass
+    {
+        VertexShader = SH_VS();
+        PixelShader  = SH_PS();
+    }
+}

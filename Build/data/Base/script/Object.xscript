@@ -1,0 +1,26 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Object.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal abstract class Object
+{
+    implementable void Init() {}
+    implementable void Destroy() {}
+
+    internal int AddReference();
+    internal int GetRefCount();
+    internal int Release();
+
+    internal bool IsOf(string className);
+
+    internal void InitializeObject();
+    
+    implementable void Reinitialize() {}
+};
+
+internal Object CreateFactoryObject(string objName, bool bInitialize=true);

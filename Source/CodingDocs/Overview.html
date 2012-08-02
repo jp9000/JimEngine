@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li class="test">Overview</li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Overview, and additional notes.</h2>
+
+<p>Although I've been brief, hopefully you're a bit up to date on the base engine now.  If you have any questions/comments/slapping feel
+free to do so.</p>
+
+<p>Regardless, I would encourage people to take a good look
+at the files in the Hyperion module after having gone through this documentation and see how some things work (sorry for any ugly code or cheap hacks you might see).
+I honestly don't know how brief I can get away with being, for now I'm going to ask that you take a look around the existing game module project as
+a direct example of how to use the engine as a game.  Primarily, you'll want to look only at files in this order (in which they are used just about), ignoring others:</p>
+<p class="value">Main -&gt; MainMenu -&gt; OptionsMenu (and VideoMenu/SoundMenu/ControlsMenu/GameplayMenu if you wish) -&gt; OpenLevelMenu,
+XenGame -&gt; XenViewport -&gt; PlayerCharacter -&gt; XenControllers -&gt; PlayerClasses -&gt; DeathmatchGame</p>
+<p>That order is the general order in which the game execution goes.  God, I probably need to make more documentation, I'm sorry ^_^</p>
+
+<p>I think I may have to create a very basic new game module with heavy comments, honestly.  Hmm, that's probably a good idea.
+Get rid of some of the current junk and start fresh again.</p>
+
+<p>I also have some basic window controls written, Button, Listbox, Slider, Edit box, which we can reuse to make life easier.</p>
+
+<hr /><!--======================================================================-->
+<h3>Note about creating your main DLL entry point</h3>
+
+<p>First you'll want to have an entry point for your game module.  Game modules of any type will not use DLLMain,
+instead they use XenDLL.  The platform-specific side of it all is handled internally in the platform headers.</p>
+
+<p>Let's use Main.cpp in my game module as an example (cutting out some of the junk):</p>
+
+<pre>
+#define XEN_DLL_EXTENSION
+#include "Main.h"
+
+...
+
+class MainGameModule : public GameModule
+{
+    CLASS_DECLARE(MainGameModule, GameModule);
+
+    DebugStatus *test1;
+    
+public:
+
+    virtual BOOL GameStartup(TSTR lpParameters, int numParameters)
+    {
+        InitializeNetworking();
+
+        test1 = CreateObject(DebugStatus);
+        test1->SetSystem(GS);
+        CreateObject(MainMenu);
+
+        return TRUE;
+    }
+
+    virtual void GameExit()
+    {
+        DestroyObject(test1);
+
+        TerminateNetworking();
+    }
+};
+
+CLASS_DEFINE(MainGameModule);
+
+
+
+BOOL XENAPI XenDLL(DWORD dwWhy)
+{
+    return TRUE;
+}
+</pre>
+
+<p>Note that at the top you'll see that I define XEN_DLL_EXTENSION.  This is <b>only</b> done in the source file where the XenDLL is defined.  XenDLL must be defined
+in all game modules.</p>
+
+<p>As you can see, it's not necessary to do anything with XenDLL.  This is primarily used for optional game modules that are not primary game modules (user-made
+modules), but in the main game module you should <i>always</i> make it just return true, because we do all our real initialization in the MainGameModule class above.
+Regardless, the dwWhy can be either XEN_DLL_LOADING or XEN_DLL_UNLOADING.</p>
+
+<p>The MainGameModule class you can see here I've just crammed entirely into this file rather than creating a seperate file for it, primarily because it's
+rather simple.  The first initialization I do is initializes networking, then create a DebugStatus window (which is the overlay that you see that shows the text with the FPS and such, although
+it does not actually show until it's enabled).</p>
+
+<p>Putting that aside, after that you'll see I just do CreateObject(MainMenu).  You'll notice I don't do anything with the return value primarily because it's programmed
+to destroy itself anyway.  From there on, the main menu will display and the use can then browse the menu and do as they please.  And that's it pretty much, control is then passed on
+to the main menu which will be shown once the main engine loop starts, and that's all that needs to be done here.</p>
+
+
+</div>
+
+</body>
+</html>
+

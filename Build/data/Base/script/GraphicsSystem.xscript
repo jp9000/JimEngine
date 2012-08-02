@@ -1,0 +1,471 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  GraphicsSystem.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+/*=========================================================
+    Enums
+==========================================================*/
+
+//---------------------------------
+//HardwareLight types
+enum GSLightType {HL_POINT, HL_DIRECTIONAL, HL_SPOT};
+
+
+//---------------------------------
+//fog
+enum GSFogType {FOG_NONE, FOG_LINEAR, FOG_EXP, FOG_EXP2};
+
+
+//---------------------------------
+//drawing types
+enum GSDrawMode {GS_POINTS, GS_LINES, GS_LINESTRIP, GS_TRIANGLES, GS_TRIANGLESTRIP, GS_TRIANGLEFAN};
+
+
+//---------------------------------
+//texture formats
+enum GSTextureType {GS_ALPHA=1, GS_GRAYSCALE, GS_RGB, GS_RGBA, GS_RGBA16, GS_RGBA16F, GS_RGBA32F, GS_RG32F, GS_RG16F, GS_A8L8, GS_DXT1, GS_DXT3, GS_DXT5};
+
+
+//---------------------------------
+//index size
+enum GSIndexType {GS_UNSIGNED_SHORT, GS_UNSIGNED_LONG};
+
+
+//---------------------------------
+//culling information
+enum GSCullMode {GS_BACK, GS_FRONT, GS_NEITHER};
+
+
+//---------------------------------
+//blend functions
+enum GSBlendType {GS_BLEND_ZERO, GS_BLEND_ONE, GS_BLEND_SRCCOLOR, GS_BLEND_INVSRCCOLOR, GS_BLEND_SRCALPHA, GS_BLEND_INVSRCALPHA, GS_BLEND_DSTCOLOR, GS_BLEND_INVDSTCOLOR, GS_BLEND_DSTALPHA, GS_BLEND_INVDSTALPHA, GS_BLEND_SRCALPHASAT};
+
+
+//---------------------------------
+//depth/stencil testing functions
+enum GSDepthTest {GS_NEVER, GS_LESS, GS_LEQUAL, GS_EQUAL, GS_GEQUAL, GS_GREATER, GS_NOTEQUAL, GS_ALWAYS};
+
+
+//---------------------------------
+//stencil operations
+enum GSStencilOp {GS_KEEP, GS_ZERO, GS_REPLACE, GS_INCR, GS_DECR, GS_INVERT};
+
+
+//---------------------------------
+//cube texture sides
+enum GSCubeSides {GS_POSITIVE_X, GS_NEGATIVE_X, GS_POSITIVE_Y, GS_NEGATIVE_Y, GS_POSITIVE_Z, GS_NEGATIVE_Z};
+
+
+/*=========================================================
+    Texture/Vertex/Index/SamplerState classes
+==========================================================*/
+
+internal abstract class BaseTexture : Object {};
+internal abstract class Texture : BaseTexture
+{
+    internal int Width();
+    internal int Height();
+    internal bool HasAlpha();
+};
+
+internal abstract class Texture3D : BaseTexture {};
+internal abstract class CubeTexture : BaseTexture
+{
+    internal int Size();
+};
+
+internal abstract class VertexBuffer : Object {};
+internal abstract class IndexBuffer : Object {};
+
+internal abstract class SamplerState : Object {};
+
+/*=========================================================
+    Shader class
+==========================================================*/
+
+internal abstract class Shader : Object
+{
+    internal int NumParams();
+    internal handle GetParameter(int parameter);
+    internal handle GetParameterByName(string strName);
+
+    internal void   SetBool(handle hObject, bool bValue);
+    internal void   SetFloat(handle hObject, float fValue);
+    internal void   SetInt(handle hObject, int iValue);
+    internal void   SetVector(handle hObject, Vect value);
+    internal void   SetVector2(handle hObject, Vect2 value);
+    internal void   SetVector4(handle hObject, Vect4 value);
+    internal void   SetTexture(handle hObject, BaseTexture texture);
+
+    internal void   SetColor(handle hObject, Vect4 value);
+    internal void   SetColor(handle hObject, float fR, float fB, float fG, float fA=1.0f);
+    internal void   SetColor(handle hObject, icolor color);
+
+    internal void   SetColor3(handle hObject, Vect value);
+    internal void   SetColor3(handle hObject, float fR, float fB, float fG);
+    internal void   SetColor3(handle hObject, icolor color);
+
+    internal void   SetVector4(handle hObject, float fX, float fY, float fZ, float fW);
+    internal void   SetVector(handle hObject, float fX, float fY, float fZ);
+    internal void   SetMatrix(handle hObject, Matrix mat);
+    internal void   SetMatrixIdentity(handle hObject);
+};
+
+/*=========================================================
+    Effect class
+==========================================================*/
+
+internal abstract class Effect : Object
+{
+    internal handle GetTechnique(string lpTechnique);
+    internal bool   UsableTechnique(handle hObject);
+
+    internal handle GetPass(handle hTechnique, int i);
+    internal handle GetPassByName(handle hTechnique, string lpName);
+
+    internal int    BeginTechnique(handle hTechnique);
+    internal void   EndTechnique();
+
+    internal void   BeginPass(int i);
+    internal bool   BeginPassByName(string lpName);
+    internal void   BeginPassByHandle(handle hPass);
+    internal void   EndPass();
+
+    //--------------------------------------------
+
+    internal int    NumParams();
+    internal handle GetParameter(int parameter);
+    internal handle GetParameterByName(string lpName);
+
+    internal void   GetBool(handle hObject, out bool bValue);
+    internal void   GetFloat(handle hObject, out float fValue);
+    internal void   GetInt(handle hObject, out int iValue);
+    internal void   GetVector(handle hObject, out Vect value);
+    internal void   GetVector2(handle hObject, out Vect2 value);
+    internal void   GetVector4(handle hObject, out Vect4 value);
+    internal void   GetString(handle hObject, out string value);
+
+    internal bool   GetDefaultBool(handle hObject, out bool bValue);
+    internal bool   GetDefaultFloat(handle hObject, out float fValue);
+    internal bool   GetDefaultInt(handle hObject, out int iValue);
+    internal bool   GetDefaultVector(handle hObject, out Vect value);
+    internal bool   GetDefaultVector2(handle hObject, out Vect2 value);
+    internal bool   GetDefaultVector4(handle hObject, out Vect4 value);
+    internal bool   GetDefaultTexture(handle hObject, out string value);
+
+    internal void   SetBool(handle hObject, bool bValue);
+    internal void   SetFloat(handle hObject, float fValue);
+    internal void   SetInt(handle hObject, int iValue);
+    internal void   SetVector(handle hObject, Vect value);
+    internal void   SetVector2(handle hObject, Vect2 value);
+    internal void   SetVector4(handle hObject, Vect4 value);
+    internal void   SetTexture(handle hObject, BaseTexture texture);
+
+    internal handle GetViewProj();
+    internal handle GetWorld();
+    internal handle GetScale();
+
+    //--------------------------------------------
+
+    internal  void   GetColor(handle hObject, out Vect4 value);
+    internal  void   GetColor(handle hObject, out icolor color);
+
+    internal  bool   GetDefaultColor(handle hObject, out Vect4 value);
+    internal  bool   GetDefaultColor(handle hObject, out icolor color);
+
+    internal  void   SetColor(handle hObject, Vect4 value);
+    internal  void   SetColor(handle hObject, float fR, float fB, float fG, float fA=1.0f);
+    internal  void   SetColor(handle hObject, icolor color);
+
+    //--------------------------------------------
+
+    internal  void   GetColor3(handle hObject, out Vect value);
+    internal  void   GetColor3(handle hObject, out icolor color);
+
+    internal  bool   GetDefaultColor3(handle hObject, out Vect value);
+    internal  bool   GetDefaultColor3(handle hObject, out icolor color);
+
+    internal  void   SetColor3(handle hObject, Vect value);
+    internal  void   SetColor3(handle hObject, float fR, float fB, float fG);
+    internal  void   SetColor3(handle hObject, icolor color);
+
+    //--------------------------------------------
+
+    internal  void   SetVector4(handle hObject, float fX, float fY, float fZ, float fW);
+    internal  void   SetVector(handle hObject, float fX, float fY, float fZ);
+    internal  void   SetMatrix(handle hObject, Matrix mat);
+    internal  void   SetMatrixIdentity(handle hObject);
+};
+
+/*=========================================================
+    MeshObject Class
+==========================================================*/
+
+internal class MeshObject : Object
+{
+    internal MeshObject(string meshResource);
+
+    internal void Render();
+    internal void RenderBare();
+
+    internal void SetMaterial(int textureID, Material material);
+};
+
+/*=========================================================
+    Graphics System Class
+==========================================================*/
+
+struct DisplayMode
+{
+    int width, height, bitsPerPixel, frequency;
+};
+
+internal abstract class GraphicsSystem : FrameObject
+{
+    internal Vect2 GetSize();
+    internal float GetSizeX();
+    internal float GetSizeY();
+
+    //--------------------------------
+    // Matrix Functions
+    internal void  MatrixPush();
+    internal void  MatrixPop();
+    internal void  MatrixSet(Matrix m);
+    internal void  MatrixMultiply(Matrix m);
+    internal void  MatrixRotate(float x, float y, float z, float a);
+    internal void  MatrixRotate(AxisAngle aa);
+    internal void  MatrixRotate(Quat q);
+    internal void  MatrixTranslate(float x, float y, float z);
+    internal void  MatrixTranslate(Vect pos);
+    internal void  MatrixTranslate(Vect2 pos2);
+    internal void  MatrixScale(Vect scale);
+    internal void  MatrixScale(float x, float y, float z);
+    internal void  MatrixTranspose();
+    internal void  MatrixInverse();
+    internal void  MatrixIdentity();
+
+    //--------------------------------
+    // Font Functions
+    internal void  SetCurFont(string name);
+    internal void  SetCurFont(Font font);
+    internal Font  GetFont(string name);
+
+    internal void  SetFontColor(icolor color);
+    internal void  SetFontColor(Vect4 color);
+
+    internal void  DrawText(int x, int y, int cx, int cy, bool bWrapWords, string text);
+    internal void  DrawTextCenter(int x, int y, string text);
+
+    //--------------------------------
+    // OpenGL style manual rendering functions
+    internal void  RenderStartNew();
+    internal void  RenderStart();
+    internal void  RenderStop(GSDrawMode dwDrawMode);
+    internal VertexBuffer RenderSave();
+    internal void  Vertex(float x, float y, float z=0);
+    internal void  Vertex(Vect v);
+    internal void  Normal(float x, float y, float z);
+    internal void  Normal(Vect v);
+    internal void  Color(icolor dwRGBA);
+    internal void  Color(Vect4 v);
+    internal void  TexCoord(float u, float v, int idTexture=0);
+    internal void  TexCoord(Vect2 uv, int idTexture=0);
+
+    //--------------------------------
+    // Main Rendering Functions
+    internal void  LoadVertexBuffer(VertexBuffer vb);
+    internal void  LoadTexture(BaseTexture texture, int idTexture=0);
+    internal void  LoadSamplerState(SamplerState sampler, int idSampler=0);
+    internal void  LoadIndexBuffer(IndexBuffer ib);
+    
+    internal void  LoadDefault2DSampler(int idSampler=0);
+    internal void  LoadDefault3DSampler(int idSampler=0);
+
+    internal void  LoadVertexShader(Shader vShader);
+    internal void  LoadPixelShader(Shader pShader);
+
+    internal void  SetFrameBufferTarget(BaseTexture texture, int side=0);
+
+    internal void  Draw(GSDrawMode DrawMode, int vertexOffset=0, int StartVert=0, int nVerts=0);
+    internal void  DrawBare(GSDrawMode DrawMode, int vertexOffset=0, int StartVert=0, int nVerts=0);
+
+    //--------------------------------
+    // Drawing mode functions
+    internal void  ReverseCullMode(bool bReverse);
+    internal void  SetCullMode(GSCullMode side);
+    internal int   GetCullMode();
+
+    internal void  EnableBlending(bool bEnable);
+    internal void  BlendFunction(GSBlendType srcFactor, GSBlendType destFactor);
+
+    internal void  ClearDepthBuffer(bool bFullClear);
+    internal void  EnableDepthTest(bool bEnable);
+    internal void  DepthWriteEnable(bool bEnable);
+    internal void  DepthFunction(GSDepthTest function);
+    internal int   GetDepthFunction();
+
+    internal void  ClearColorBuffer(bool bFullClear=true, icolor color=0xFF000000);
+    internal void  ColorWriteEnable(bool bRedEnable, bool bGreenEnable, bool bBlueEnable, bool bAlphaEnable);
+
+    internal void  ClearStencilBuffer(bool bFill);
+    internal void  EnableStencilTest(bool bEnable);
+    internal void  StencilWriteEnable(bool bEnable);
+    internal void  StencilFunction(GSDepthTest function);
+    internal void  StencilOp(GSStencilOp fail, GSStencilOp zfail, GSStencilOp zpass);
+
+    internal void  SetPointSize(float size);
+
+    //--------------------------------
+    // Resolution/Display functions
+    internal bool  ToggleFullScreen();
+    internal bool  SetResolution(DisplayMode displayMode, bool bCenter=false);
+    internal bool  AdjustDisplayColors(float gamma=1.0f, float brightness=1.0f, float contrast=1.0f);
+
+    internal void  GetCurrentDisplayMode(out DisplayMode displayMode);
+    internal bool  IsFullscreen();
+
+    //--------------------------------
+    // Other
+    internal void  Set2DMode();
+    internal void  Set3DMode(float fovy, float znear=4.0, float zfar=4096.0);
+    internal void  Perspective(float fovy, float aspect, float znear, float zfar);
+    internal void  Ortho(float left, float right, float top, float bottom, float znear, float zfar);
+    internal void  Frustum(float left, float right, float top, float bottom, float znear, float zfar);
+
+    internal void DrawSprite(Texture texture, float x, float y, float x2=-1.0, float y2=-1.0);
+    internal void DrawSprite3D(Quat cameraRot, Texture texture, Vect pos, float sizeX, float sizeY, float rotation=0.0);
+    internal void DrawSpriteCenter(Texture texture, float x, float y, icolor color=0xFFFFFFFF);
+    internal void DrawCubeBackdrop(Camera cam, CubeTexture cubetexture);
+    internal void DrawCubeBackdrop(Camera cam, CubeTexture cubetexture, Quat customRot);
+    internal void DrawSpriteEx(Texture texture, icolor color, float x, float y, float x2=-1.0, float y2=-1.0f, float u=-1.0f, float v=-1.0f, float u2=-1.0f, float v2=-1.0f);
+
+    internal Input GetInput();
+
+    internal ControlWindow GetMouseOver(int x=-1, int y=-1);
+
+    internal void GetLocalMousePos(out int x, out int y);
+    internal void SetLocalMousePos(int x, int y);
+};
+
+internal GraphicsSystem GS();
+
+//============================================================
+
+//--------------------------------
+// Matrix Functions
+internal void  MatrixPush();
+internal void  MatrixPop();
+internal void  MatrixSet(Matrix m);
+internal void  MatrixMultiply(Matrix m);
+internal void  MatrixRotate(float x, float y, float z, float a);
+internal void  MatrixRotate(AxisAngle aa);
+internal void  MatrixRotate(Quat q);
+internal void  MatrixTranslate(float x, float y, float z);
+internal void  MatrixTranslate(Vect pos);
+internal void  MatrixTranslate(Vect2 pos2);
+internal void  MatrixScale(Vect scale);
+internal void  MatrixScale(float x, float y, float z);
+internal void  MatrixTranspose();
+internal void  MatrixInverse();
+internal void  MatrixIdentity();
+
+//--------------------------------
+// Font Functions
+internal void  SetCurFont(string name);
+internal void  SetCurFont(Font font);
+internal Font  GetFont(string name);
+
+internal void  SetFontColor(icolor color);
+internal void  SetFontColor(Vect4 color);
+
+internal void  DrawText(int x, int y, int cx, int cy, bool bWrapWords, string text);
+internal void  DrawTextCenter(int x, int y, string text);
+
+//--------------------------------
+// OpenGL style manual rendering functions
+internal void  RenderStartNew();
+internal void  RenderStart();
+internal void  RenderStop(GSDrawMode dwDrawMode);
+internal VertexBuffer RenderSave();
+internal void  Vertex(float x, float y, float z=0);
+internal void  Vertex(Vect v);
+internal void  Normal(float x, float y, float z);
+internal void  Normal(Vect v);
+internal void  Color(icolor dwRGBA);
+internal void  Color(Vect4 v);
+internal void  TexCoord(float u, float v, int idTexture=0);
+internal void  TexCoord(Vect2 uv, int idTexture=0);
+
+//--------------------------------
+// Main Rendering Functions
+internal void  LoadVertexBuffer(VertexBuffer vb);
+internal void  LoadTexture(BaseTexture texture, int idTexture=0);
+internal void  LoadSamplerState(SamplerState sampler, int idSampler=0);
+internal void  LoadIndexBuffer(IndexBuffer ib);
+
+internal void  LoadDefault2DSampler(int idSampler=0);
+internal void  LoadDefault3DSampler(int idSampler=0);
+
+internal void  LoadVertexShader(Shader vShader);
+internal void  LoadPixelShader(Shader pShader);
+
+internal void  SetFrameBufferTarget(BaseTexture texture, int side=0);
+
+internal void  Draw(GSDrawMode DrawMode, int vertexOffset=0, int StartVert=0, int nVerts=0);
+internal void  DrawBare(GSDrawMode DrawMode, int vertexOffset=0, int StartVert=0, int nVerts=0);
+
+//--------------------------------
+// Drawing mode functions
+internal void  SetCullMode(GSCullMode side);
+internal int   GetCullMode();
+
+internal void  EnableBlending(bool bEnable);
+internal void  BlendFunction(GSBlendType srcFactor, GSBlendType destFactor);
+
+internal void  ClearDepthBuffer(bool bFullClear);
+internal void  EnableDepthTest(bool bEnable);
+internal void  DepthWriteEnable(bool bEnable);
+internal void  DepthFunction(GSDepthTest function);
+internal int   GetDepthFunction();
+
+internal void  ClearColorBuffer(bool bFullClear=true, icolor color=0xFF000000);
+internal void  ColorWriteEnable(bool bRedEnable, bool bGreenEnable, bool bBlueEnable, bool bAlphaEnable);
+
+internal void  ClearStencilBuffer(bool bFill);
+internal void  EnableStencilTest(bool bEnable);
+internal void  StencilWriteEnable(bool bEnable);
+internal void  StencilFunction(GSDepthTest function);
+internal void  StencilOp(GSStencilOp fail, GSStencilOp zfail, GSStencilOp zpass);
+
+internal void  SetPointSize(float size);
+
+//--------------------------------
+// Resolution/Display functions
+internal bool  ToggleFullScreen();
+internal bool  SetResolution(DisplayMode displayMode, bool bCenter=false);
+internal bool  AdjustDisplayColors(float gamma=1.0f, float brightness=1.0f, float contrast=1.0f);
+internal void  EnumDisplayModes(out list<DisplayMode> displayModes);
+
+internal void  GetCurrentDisplayMode(out DisplayMode displayMode);
+internal bool  IsFullscreen();
+
+//--------------------------------
+// Other
+internal void Set2DMode();
+
+internal void DrawSprite(Texture texture, float x, float y, float x2=-1.0, float y2=-1.0);
+internal void DrawSprite3D(Quat cameraRot, Texture texture, Vect pos, float sizeX, float sizeY, float rotation=0.0);
+internal void DrawSpriteCenter(Texture texture, float x, float y, icolor color=0xFFFFFFFF);
+internal void DrawCubeBackdrop(Camera cam, CubeTexture cubetexture);
+internal void DrawCubeBackdrop(Camera cam, CubeTexture cubetexture, Quat customRot);
+internal void DrawSpriteEx(Texture texture, icolor color, float x, float y, float x2=-1.0, float y2=-1.0f, float u=-1.0f, float v=-1.0f, float u2=-1.0f, float v2=-1.0f);
+
+internal ControlWindow GetMouseOver(int x=-1, int y=-1);
+
+internal void GetLocalMousePos(out int x, out int y);
+internal void SetLocalMousePos(int x, int y);

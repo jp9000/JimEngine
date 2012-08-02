@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li class="test">Engine</li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Engine class (Engine.h)</h2>
+
+<p>The Engine class is the class which basically runs the game.  Each frame is updated through this class, and all
+major systems are created and destroyed in this class.</p>
+
+<p>The engine can be accessed through the "engine" global variable at any time, although is mostly used for statistics and information.</p>
+
+<p>The only reason one would want to create a class derived from Engine is if they want to create a custom
+window setup or if they want to alter the way the frame update works, but such things are rarely needed.</p>
+
+<hr /><!--======================================================================-->
+<h3>Engine protected variables</h3>
+
+<pre>BOOL bCustomWindow;</pre>
+<p>If you are implementing a custom window, create your window and then set this to TRUE before calling Super::Init() in your Init().</p>
+
+<hr /><!--======================================================================-->
+<h3>Engine class functions</h3>
+
+<pre>class BASE_EXPORT Engine : public Object</pre>
+
+<pre>inline DWORD GetCurFPS() const</pre>
+<p>Returns the current FPS.</p>
+
+<pre>inline DWORD NumLights() const</pre>
+<p>Returns the number of visible dynamic lights in the scene.</p>
+
+<pre>inline DWORD NumPolys() const</pre>
+<p>Returns the number of polgons being drawn per frame.</p>
+
+<pre>inline DWORD NumVisibleAreas() const</pre>
+<p>Returns the number of visible areas (PVSs for indoor, Quadtree areas for outdoor and tiled levels)</p>
+
+<pre>BOOL InEditor() const</pre>
+<p>Returns TRUE if currently in the editor, otherwise FALSE.</p>
+
+<pre>virtual void Update(BOOL bProcessTime=TRUE);</pre>
+<p>This is the main frame update function.  This is called automatically unless you have a custom update loop, in which you
+can call it as you please.  This function can be implemented but make absolutely sure to call Super::Update(bProcessTime).</p>
+
+</div>
+
+</body>
+</html>
+

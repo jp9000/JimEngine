@@ -1,0 +1,27 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Game.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal abstract class Game : Object
+{
+    internal void SetGameSpeed(float speed);
+    internal float GetGameSpeed();
+
+    internal void Pause(bool bPause);
+    internal bool IsPaused();
+
+    internal bool Save(string strFile);
+
+    internal Viewport GetMainViewport();
+    internal void SetMainViewport(Viewport viewport);
+
+    implementable void SerializeGameData(SerializerObject s) {}
+};
+
+internal void UnloadGame();
+internal bool LoadGame(string strFile);
+internal Game CurrentGame();

@@ -1,0 +1,93 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Window.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+enum OffsetType
+{
+    Offset_TopLeft,
+    Offset_TopCenter,
+    Offset_TopRight,
+    Offset_CenterLeft,
+    Offset_Center,
+    Offset_CenterRight,
+    Offset_BottomLeft,
+    Offset_BottomCenter,
+    Offset_BottomRight
+};
+
+enum {Window_Command=0x1000};
+
+internal abstract class Window : FrameObject
+{
+    int id;
+
+    internal void SetPos(Vect2 pos);
+    internal void SetSize(Vect2 size);
+
+    void SetPos(float x, float y) {SetPos(Vect2(x, y));}
+    void SetSize(float x, float y) {SetSize(Vect2(x, y));}
+
+    internal Vect2 GetRealPos();
+    internal Vect2 GetLocalPos();
+    float GetLocalX() {return GetLocalPos().x;}
+    float GetLocalY() {return GetLocalPos().y;}
+
+    internal Vect2 GetSize();
+    float GetSizeX() {return GetSize().x;}
+    float GetSizeY() {return GetSize().y;}
+
+    internal void SetOffsetType(OffsetType newOffset);
+    internal OffsetType GetOffsetType();
+
+    internal void SetPosOffset(Vect2 offsetPos, bool bCentered=false);
+    void SetPosOffset(float x, float y, bool bCentered=false) {SetPosOffset(Vect2(x, y), bCentered);}
+
+    internal Vect2 GetOffsetPoint(OffsetType offset);
+
+    internal void SetFullScreen(bool bSet);
+
+    internal void Attach(Window new_parent);
+    internal void Detach();
+
+    internal Window GetParent();
+    internal int NumChildren();
+    internal Window GetChild(int i);
+
+    internal void SetTopLevel();
+
+    internal void SetSystem(GraphicsSystem graphicsSystem);
+    internal GraphicsSystem GetSystem();
+
+    implementable int OnMessage(Window child, int message, Object param) {return 0;}
+};
+
+internal abstract class ControlWindow : Window
+{
+    bool bKeepFocus;
+
+    internal void TakeInputControl(bool bTake);
+
+    internal bool HasFocus();
+
+    implementable void GotFocus()                                                 {}
+    implementable void LostFocus()                                                {}
+
+    implementable bool KeyDown(int kbc)                                           {return true;}
+    implementable bool KeyUp(int kbc)                                             {return true;}
+
+    implementable void MouseDown(int button)                                      {}
+    implementable void MouseUp(int button)                                        {}
+    implementable void MouseMove(int x, int y, int x_offset, int y_offset)        {}
+    implementable void MouseWheel(int scroll)                                     {}
+};
+
+internal void PushCursorPos();
+internal void PopCursorPos(bool bSendMouseMove=false);
+internal ControlWindow CurrentInputWindow();
+internal ControlWindow CurrentFocusWindow();
+internal void SetUnechoedCursorPos(int x, int y);

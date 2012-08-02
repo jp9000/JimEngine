@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li class="test">2D Interface</li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Window/ControlWindow Classes (Window.h)</h2>
+
+<p>  The Window and ControlWindow classes are the fundamental base class of which all user interface windows are defined.
+Mouse data is automatically handled by the window system.  However, if keyboard data is needed, it must
+be taken by pushing a new keyboard button handler.</p>
+
+<p>  Any window that will be visible must have RENDERABLE(TRUE) (or a variable value in place of TRUE)
+defined in their class definition unless the window is derived from an already renderable class.</p>
+
+<p>If your window is a renderable window you must also set the position and size of the window with
+by altering the protected variables Pos and Size or by using the functions SetPos and SetSize. I may
+create a window editor at some point to simplify this process.  It's a bit tedious to have to
+programatically place thigs, although gives you more control over the UI design.</p>
+
+<p>If you wish your window to be non-interactive, such as an overlay window or HUD, derive your class from Window.
+If you wish to make an interactive window that can recieve input, use ControlWindow.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Window class</h3>
+
+<p>If you derive a window from this class it will not be interactable and will not receive input.  It will be invisible to the input system.
+Use ControlWindow for windows that can be interacted with.  If you have no children you do not necessarily need to set Size for this type
+of window because of its non-interactive nature.</p>
+
+<pre>class BASE_EXPORT Window : public FrameObject</pre>
+
+<pre>
+protected Vect2 Pos;
+protected Vect2 Size;
+</pre>
+<p>  Unlike its 3D-equivelant Entity class, classes derived from Window can alter their position and
+size directly if they wish.  Remember that the position of the window
+is relative to the offset type set for the window.</p>
+
+<p>These values should be set either in the Init() of the derived class or after creation of the window using the functions below.</p>
+
+
+<pre>
+inline void SetPos(const Vect2 &amp;newPos)
+inline void SetPos(float x, float y)
+inline void SetPosX(float x)
+inline void SetPosY(float y)
+</pre>
+<p>  Relatively self-explanatory.  Remember that the position of the window
+is relative to the offset type set for the window.</p>
+
+<pre>
+inline Vect2 GetLocalPos()
+Vect2        GetRealPos()
+</pre>
+<p>  GetLocalPos relative to the parent window, GetRealPos is the actual position on-screen.</p>
+
+<pre>
+inline Vect2 GetSize() const
+inline void SetSize(const Vect2 &amp;newSize)
+inline void SetSize(float x, float y)
+</pre>
+<p>  Sets/Gets the size of the window.  This value should be set in Init()</p>
+
+
+<pre>
+inline void SetOffsetType(OffsetType newOffset)
+inline OffsetType GetOffsetType()
+</pre>
+<p>Sets or gets the offset type of the window relative to the parent window frame.
+If there is no parent, position will be relative to the graphics window.</p>
+
+<p>newOffset can be one of the following values:</p>
+
+<pre class="example">
+Offset_TopLeft
+Offset_TopCenter
+Offset_TopRight
+Offset_CenterLeft
+Offset_Center
+Offset_CenterRight
+Offset_BottomLeft
+Offset_BottomCenter
+Offset_BottomRight
+</pre>
+
+<pre>
+void SetPosOffset(const Vect2 &amp;offsetPos, BOOL bCentered);
+inline void SetPosOffset(float x, float y, BOOL bCentered)
+</pre>
+<p>Takes the size of the window into consideration and sets the position based on an offset from the window offset type.
+Set your window size before using this function.</p>
+
+<p>If bCenter is TRUE and the window offset is in a centered offset type (not a corner), the window will be centered by offsetPos.</p>
+
+<pre>Vect2 GetOffsetPoint(OffsetType offset);</pre>
+<p>Gets the positional value of offset inside this window.  This position is relative to the window position.  Useful for rendering.</pre>
+
+<pre>BOOL SetFullScreen(BOOL bSet);</pre>
+<p>When this function is called with TRUE, will automatically set Pos to zero and Size to the size of the client window area.
+The positional offset is also changed to Offset_TopLeft.</p>
+<p>Does not work with child windows.</p>
+
+
+<pre>
+void Attach(Window *new_parent)
+void Detach()
+</pre>
+<p>  Attaches or detaches a window to another window as a child window (sets its parent).  Note that
+when you do this that your window position will become relative to the new parent.</p>
+
+
+
+<pre>
+inline Window* GetParent()
+
+inline unsigned int NumChildren()
+inline Window* GetChild(unsigned int i)
+</pre>
+<p>  Relatively self-explanatory</p>
+
+
+
+<pre>void SetTopLevel();</pre>
+
+<p>  Sets this window as the top level window on top of other windows if the need arises.</p>
+
+
+<pre>
+void SetSystem(GraphicsSystem *graphicsSystem);
+inline GraphicsSystem* GetSystem()
+</pre>
+
+<p>This sets the graphics system in which this window belongs to.  Windows are automatically assigned to the default
+graphics system by default on creation.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Window Implementable Functions</h3>
+
+
+<pre>
+virtual void Prerender()
+virtual void Render()
+virtual void Prerender()
+</pre>
+<p>  Actually defined in FrameObject, but these are the primary functions used for rendering.</p>
+
+
+<hr /><!--======================================================================-->
+
+<h3>ControlWindow class</h3>
+
+<p>The control window class is used for interactive windows which can receive input from the user.</p>
+
+<pre>class BASE_EXPORT ControlWindow : public Window</pre>
+
+<pre>
+static void PushCursorPos();
+static void PopCursorPos(BOOL bSendMouseMove=FALSE);
+</pre>
+<p>These functions let you push and pop the current mouse position from the mouse position stack.
+Useful in cases where you need to easily reset a mouse position back from a certain position.</p>
+<p>When the mouse position is popped the UI system will not recieve the mouse movement message for it
+unless bSendMouseMove is set to TRUE.</p>
+
+static void SetUnechoedCursorPos(int x, int y);
+<p>This will set your mouse position without notifying the UI system of the new position.</p>
+
+
+<hr /><!--======================================================================-->
+
+<h3>ControlWindow Implementable Functions</h3>
+
+
+<pre>
+virtual void GotFocus()
+virtual void LostFocus()
+</pre>
+<p>  These functions are called by the system when either a mouse goes over or leaves a window, or if full
+window focus priority is set or removed for that window.</p>
+
+
+<pre>
+virtual void MouseDown(DWORD button)
+virtual void MouseUp(DWORD button)
+virtual void MouseMove(int x, int y, short x_offset, short y_offset)
+virtual void MouseWheel(short scroll)
+</pre>
+<p>  Relatively self-explanatory.  Called by a system when a mouse event occurs on your window.  If the window
+has full focus priority it will continue to get input via these functions until focus priority is removed.</p>
+<p>    -- button can be one of 3 values:</p>
+<pre class="example">MOUSE_LEFTBUTTON
+MOUSE_MIDDLEBUTTON
+MOUSE_RIGHTBUTTON</pre>
+<p>    -- x/y are full coordinates</p>
+<p>    -- x_offset/y_offset are offsets of the last position.</p>
+
+</div>
+
+</body>
+</html>
+

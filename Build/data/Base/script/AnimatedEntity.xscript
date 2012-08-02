@@ -1,0 +1,93 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  AnimedEntity.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+//-----------------------------------------
+// BoneExtension (Guns, etc)
+struct BoneExtension
+{
+    int                 idParent;
+    Vect                Pos;
+    Quat                Rot;
+};
+
+
+//-----------------------------------------
+// Animation type
+enum AnimationType {ANIM_PLAY_AND_STOP, ANIM_HALTED, ANIM_PLAY_AND_HALT, ANIM_LOOP};
+
+
+//-----------------------------------------
+// Animation flags
+enum
+{
+    ANIMATION_HALT              =1,
+    ANIMATION_HALTING           =2,
+    ANIMATION_TRANSITION        =4,
+};
+
+//-----------------------------------------
+// Animation data
+struct Anim
+{
+    int           idSequence;
+    int           nextSequence;
+    int           endFrame;
+    int           curFrame;
+    int           nextFrame;
+    int           flags;
+    float         speed;
+    AnimationType type;
+
+    float         fT;
+    float         curFrameTime;
+    float         transitionVal;
+    float         transitionCurTime;
+    float         transitionLength;
+};
+
+
+//-----------------------------------------
+// Deformable Bone
+internal class DBone : Entity {};
+
+//-----------------------------------------
+// Animatable object
+internal abstract class AnimatedEntity : MeshEntity
+{
+    internal void  PlayAnimation(int id, AnimationType animType=ANIM_LOOP, float speed=1.0f, float transitionSpeed=0.2f);
+    internal void  PlayAnimation(string seqName, AnimationType animType=ANIM_LOOP, float speed=1.0f, float transitionSpeed=0.2f);
+    
+    internal void  TransitionAnimation(string curSeq, string nextSeq, AnimationType animType=ANIM_LOOP, float speed=1.0f, float transitionSpeed=0.2f);
+
+    internal void  SetAnimationSpeed(int id, float speed);
+    internal void  SetAnimationSpeed(string seqName, float speed);
+
+    internal void  StopAnimation(int id, float transitionSpeed=0.2f);
+    internal void  StopAnimation(string seqName, float transitionSpeed=0.2f);
+    
+    implementable void OnStopAnimation(string seqName) {}
+    implementable void OnHaltAnimation(string seqName) {}
+
+    internal void  StopAllAnimation();
+
+    internal bool  IsAnimationPlaying(int id);
+    internal bool  IsAnimationPlaying(string seqName);
+
+    internal int   NumActiveAnimations();
+
+    internal int   NumBoneExtensions();
+    internal bool  GetBoneExtension(string name, out BoneExtension boneExt);
+
+    internal int   NumBones();
+    internal DBone GetBone(int i);
+
+    internal int   GetAnimationID(string seqName);
+
+    internal void  AddCustomAnimation(Anim animData);
+    internal bool  GetAnimationData(int idSequence, out Anim anim);
+};

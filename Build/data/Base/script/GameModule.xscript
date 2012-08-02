@@ -1,0 +1,13 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  GameModule.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal abstract class GameModule : Object
+{
+    implementable bool ModuleStartup()  {return true;}
+    implementable void ModuleExit()     {}
+};

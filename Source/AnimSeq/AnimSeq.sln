@@ -1,0 +1,25 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnimSeq", "AnimSeq.vcproj", "{D6C02F0D-D5A9-4313-A64D-2193E02A8683}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Hybrid|Win32 = Hybrid|Win32
+		Release|Win32 = Release|Win32
+		ReleaseMax9|Win32 = ReleaseMax9|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D6C02F0D-D5A9-4313-A64D-2193E02A8683}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D6C02F0D-D5A9-4313-A64D-2193E02A8683}.Debug|Win32.Build.0 = Debug|Win32
+		{D6C02F0D-D5A9-4313-A64D-2193E02A8683}.Hybrid|Win32.ActiveCfg = Hybrid|Win32
+		{D6C02F0D-D5A9-4313-A64D-2193E02A8683}.Hybrid|Win32.Build.0 = Hybrid|Win32
+		{D6C02F0D-D5A9-4313-A64D-2193E02A8683}.Release|Win32.ActiveCfg = Release|Win32
+		{D6C02F0D-D5A9-4313-A64D-2193E02A8683}.Release|Win32.Build.0 = Release|Win32
+		{D6C02F0D-D5A9-4313-A64D-2193E02A8683}.ReleaseMax9|Win32.ActiveCfg = ReleaseMax9|Win32
+		{D6C02F0D-D5A9-4313-A64D-2193E02A8683}.ReleaseMax9|Win32.Build.0 = ReleaseMax9|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

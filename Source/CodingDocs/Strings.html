@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li class="test">Strings</li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>String storage (String.h)</h2>
+
+<p>  The engine can be compiled in either unicode or multibyte, but unicode is almost always used because it's just so
+much less of a pain.  Externally stored text files/data use UTF-8.</p>
+
+<p>  All strings must be defined with the relatively standard TEXT("string") macro unless you're intentionally using a
+specific string type.</p>
+
+<p>  You'll probably want to use the string class for most cases seeing as it really simplifies lots of stuff.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>String types</h3>
+
+<p>  Most strings as stated, are stored as unicode.  These are the preferred types you'll almost always want to use:</p>
+<pre class="example">
+TCHAR   -- wchar_t when UNICODE is defined, char otherwise)
+TSTR    -- TCHAR*
+CTSTR   -- const TSTR
+</pre>
+
+
+<p>  There is also equivelant for specifically wide,</p>
+
+<pre class="example">wchar_t, WCHAR, WSTR, CWSTR</pre>
+
+<p>  ..or the standard defs for single byte if needed.</p>
+
+<pre class="example">char/CHAR, LPSTR, LPCSTR</pre>
+
+<hr /><!--======================================================================-->
+
+<h3>String class members</h3>
+
+<pre>class BASE_EXPORT String</pre>
+
+<pre>
+String&amp; operator =(various input types);
+String&amp; operator +=(various input types);
+String&amp; operator &lt;&lt;(various input types);
+String  operator +(various input types) const;
+BOOL    operator ==(various input types) const;
+BOOL    operator !=(various input types) const
+</pre>
+<p>  The various different types of operators available to the string class.  You can use regular string pointers and string
+objects, but if you wish to add a character, or a number (to be converted to a string value), I would recommend
+using the String::FormattedString static function or AppendChar/InsertChar respectively.</p>
+
+<p>  &lt;&lt; and += are identical.</p>
+
+<p>  == and != do a case-sensitive comparison, so I would recommend using CompareI if you need case-insensitive,
+or scmp or scmpi if you need to be able to return a sorting value.</p>
+
+
+<pre>
+BOOL    Compare(CTSTR str)    const;
+BOOL    CompareI(CTSTR str)   const;
+</pre>
+<p>  CompareI is the case-insensitive version.</p>
+
+<p>  Returns TRUE if equal, FALSE otherwise.</p>
+
+
+
+<pre>LPSTR   CreateUTF8String();</pre>
+
+<p>  Creates a UTF8 single-byte string.  Must be freed with Free.</p>
+
+
+
+<pre>String&amp; FindReplace(CTSTR strFind, CTSTR strReplace);</pre>
+
+<p>  Standard find and replace.  Returns *this.</p>
+
+
+
+<pre>void    InsertString(DWORD dwPos, CTSTR str);</pre>
+
+<p>  Inserts a string at specified position.</p>
+
+
+
+<pre>DWORD   GetLinePos(DWORD dwLine);</pre>
+
+<p>  Returns the offset of a specific carraige-return line.</p>
+
+
+<pre>
+String&amp; AppendChar(TCHAR chr);
+String&amp; InsertChar(int pos, TCHAR chr);
+</pre>
+<p>  Relatively self-explanatory.</p>
+
+
+
+<pre>String&amp; Clear();</pre>
+
+
+<pre>
+int     NumTokens(TCHAR seperator=' ') const;
+String  GetToken(int token, TCHAR seperator=' ') const;
+</pre>
+<p>  Lets you find string values seperated by tokens.  As a loose example:</p>
+<pre class="example">
+String lotsOfStrings = TEXT("Hello!;I am a second string;WOOP!");
+int numTokens = lotsOfString.NumTokens(';');
+for(int i=0; i&lt;;numTokens; i++)
+{
+    cout &lt;&lt; lotsOfStrings.GetToken(i, ';') &lt;&lt; TEXT("\r\n");
+}
+</pre>
+<p>  which would output:</p>
+<pre class="example">
+Hello!
+I am a second string
+WOOP!
+</pre>
+
+<pre>
+String  Left(int iEnd);
+String  Mid(int iStart, int iEnd);
+String  Right(int iStart);
+BOOL    IsEmpty() const
+</pre>
+<p>  Relatively self-explanatory.</p>
+
+
+
+<pre>String&amp; SetLength(DWORD length);</pre>
+
+<p>  Will set the length of the buffer.  Existing contents will be truncated if decreasing the size.</p>
+
+
+
+<pre>inline DWORD   Length() const</pre>
+
+<p>  Gets the number of characters (minus terminator) in the string.</p>
+
+
+
+<pre>inline DWORD   DataLength() const</pre>
+
+<p>  Gets the size of the string including terminator in bytes.</p>
+
+
+
+<pre>static String FormattedString(CSTR lpFormat, ...);</pre>
+
+<p>  Similar to printf, but returns a String.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Global String functions</h3>
+
+
+<pre>
+int    XENAPI   slen(const TCHAR *strSrc);
+int    XENAPI   ssize(const TCHAR *strSrc);
+</pre>
+<p>  slen returns the number of characters minus terminator, ssize gets the bytes of the physical memory size plus terminator</p>
+
+
+<pre>
+void   XENAPI   scpy(TCHAR *strDest, const TCHAR *strSrc);
+void   XENAPI   scat(TCHAR *strDest, const TCHAR *strSrc);
+</pre>
+<p>  Copy and concatonation</p>
+
+
+<pre>
+void   XENAPI   slwr(TCHAR *str);
+void   XENAPI   supr(TCHAR *str);
+</pre>
+<p>  Edits a string to all lower or upper case.</p>
+
+
+
+<pre>TCHAR* XENAPI   sdup(const TCHAR *str);</pre>
+
+<p>  Allocates a duplicate string.  Must be freed with Free.</p>
+
+
+<pre>
+int    XENAPI   scmp(const TCHAR *str1, const TCHAR *str2);
+int    XENAPI   scmpi(const TCHAR *str1, const TCHAR *str2);
+int    XENAPI   scmp_n(const TCHAR *str1, const TCHAR *str2, unsigned int num);
+int    XENAPI   scmpi_n(const TCHAR *str1, const TCHAR *str2, unsigned int num);
+</pre>
+<p>  Comparison functions, exactly the same as their C-library equivelants (plus insensitive versions), returns:</p>
+<p>    -1 if str1 &lt; str2</p>
+<p>    0 if str1 == str2</p>
+<p>    1 if str1 &gt; str2</p>
+
+<pre>
+TCHAR* XENAPI   schr(const TCHAR *strSrc, const TCHAR chr);
+TCHAR* XENAPI   sstr(const TCHAR *strSrc, const TCHAR *strSearch);
+TCHAR* XENAPI   srchr(TCHAR *strSrc, const TCHAR chr);
+</pre>
+<p>  Searches for a character, a string, or a character in reverse, returns the pointer position if found, NULL if not.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Global Unicode conversion functions.</h3>
+
+<p>  Converts strings from internal type to UTF8/wide/etc.  All relatively self-explanatory.</p>
+
+<pre>
+BOOL            UsingUnicode();
+
+int             tstr_to_utf8(const TCHAR *strSrc, char *strDest, size_t destLen);
+int             tstr_to_wide(const TCHAR *strSrc, wchar_t *strDest, size_t destLen);
+
+int             tstr_to_utf8_datalen(const TCHAR *strSrc);
+int             tstr_to_wide_datalen(const TCHAR *strSrc);
+int             utf8_to_tchar_datalen(const char *strSrc);
+</pre>
+
+<pre>
+LPSTR           tstr_createUTF8(const TCHAR *strSrc);
+WSTR            tstr_createWide(const TCHAR *strSrc);
+TSTR            utf8_createTstr(const char *strSrc);
+</pre>
+<p>  Return values for these three must be freed with Free.</p>
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li class="test">Platform Functions</li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Platform Functions (BasePlatform.h)</h2>
+
+<p>  This is basically just all the OS-Specific wrapper functions.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Platform Structures</h3>
+
+
+<pre>
+struct OSFindData
+{
+    TCHAR fileName[512];
+    BOOL bDirectory;
+    BOOL bHidden;
+};
+</pre>
+<pre>
+struct XRect
+{
+    int x;
+    int y;
+    int cx;
+    int cy;
+};
+</pre>
+<pre>
+struct DISPLAYMODE
+{
+    DWORD dwWidth;
+    DWORD dwHeight;
+    DWORD dwBitsPerPixel;
+    DWORD dwFrequency;
+};
+</pre>
+<hr /><!--======================================================================-->
+
+<h3>Platform Functions</h3>
+
+
+
+<pre>BASE_EXPORT void   XENAPI OSDeleteFile(TSTR lpFile);</pre>
+
+
+<pre>
+BASE_EXPORT HANDLE XENAPI OSFindFirstFile(CTSTR lpFileName, OSFindData &amp;findData);
+BASE_EXPORT BOOL   XENAPI OSFindNextFile(HANDLE hFind, OSFindData &amp;findData);
+BASE_EXPORT void   XENAPI OSFindClose(HANDLE hFind);
+</pre>
+<p>  These are pretty much the same as the windows versions but use the OSFindData
+structure instead.</p>
+
+
+<pre>
+BASE_EXPORT HANDLE XENAPI OSCreateMainWindow(CTSTR lpTitle, int cx, int cy, BOOL bResizable);
+BASE_EXPORT void   XENAPI OSDestroyMainWindow();
+BASE_EXPORT void   XENAPI OSSetWindowSize(int cx, int cy, BOOL bCenter=FALSE);
+BASE_EXPORT void   XENAPI OSSetWindowPos(int x, int y);
+BASE_EXPORT void   XENAPI OSGetWindowRect(XRect &amp;rect);
+BASE_EXPORT void   XENAPI OSCenterWindow();
+</pre>
+<p>  OSCreateMainWindow is called in your engine class Init() before you call Super::Init().</p>
+
+<p>  OSDestroyMainWindow is called in your engine class Destroy() after you call Super::Destroy().</p>
+
+<p>  Don't use OSSetWindowSize, instead use the SetResolution function in GraphicsSystem.</p>
+
+<p>  The OSGetWindowRect gets the full window rect.</p>
+
+
+<pre>
+BASE_EXPORT void   XENAPI OSShowCursor(BOOL bShow);
+BASE_EXPORT void   XENAPI OSSetCursorPos(int x, int y);
+BASE_EXPORT void   XENAPI OSGetCursorPos(int &amp;x, int &amp;y);
+BASE_EXPORT void   XENAPI OSClipCursor(BOOL bClip);
+BASE_EXPORT void   XENAPI OSCenterCursor();
+</pre>
+<p>  OSClipCursor clips your mouse movement to the window client.</p>
+
+
+<pre>
+BASE_EXPORT BOOL   XENAPI OSSetFullscreen(DISPLAYMODE *dm);
+BASE_EXPORT void   XENAPI OSGetDisplaySettings(DISPLAYMODE *dm);
+BASE_EXPORT void   XENAPI OSEnumDisplaySettings(List&lt;DISPLAYMODE&gt; &amp;displayModes);
+BASE_EXPORT BOOL   XENAPI OSColorAdjust(float gamma=1.0f, float brightness=1.0f, float contrast=1.0f);
+</pre>
+<p>  don't use OSSetFullscreen, instead use ToggleFullscreen in GraphicsSystem</p>
+
+<p>  OSGetDisplaySettings gets the current display settings on the monitor.</p>
+
+<p>  OSEnumDisplaySettings gets a list of display settings the monitor is
+capable of.</p>
+
+<p>  OSColorAdjust adjusts the color curve.  1.0 is the default (no-change) value</p>
+
+
+<pre>
+BASE_EXPORT HANDLE XENAPI OSLoadLibrary(CTSTR lpFile);
+BASE_EXPORT LPVOID XENAPI OSGetProcAddress(HANDLE hLibrary, LPCSTR lpProcedure);
+BASE_EXPORT void   XENAPI OSFreeLibrary(HANDLE hLibrary);
+</pre>
+<p>  Note that OSGetProcAddress uses an ANSI string.</p>
+
+
+
+<pre>BASE_EXPORT void   XENAPI OSSleep(DWORD dwMSeconds);</pre>
+
+<p>  Halts thread execution for dwMSeconds milliseconds</p>
+
+
+<pre>
+BASE_EXPORT HANDLE XENAPI OSCreateThread(XENTHREAD lpThreadFunc, LPVOID param);
+BASE_EXPORT BOOL   XENAPI OSWaitForThread(HANDLE hThread, LPDWORD ret);
+BASE_EXPORT BOOL   XENAPI OSCloseThread(HANDLE hThread);
+BASE_EXPORT BOOL   XENAPI OSTerminateThread(HANDLE hThread);
+</pre>
+<p>  The thread proc is as follows:</p>
+<pre class="example">DWORD ThreadProc(LPVOID lpParam);</pre>
+
+
+<pre>
+BASE_EXPORT HANDLE XENAPI OSCreateMutex();
+BASE_EXPORT void   XENAPI OSEnterMutex(HANDLE hMutex);
+BASE_EXPORT BOOL   XENAPI OSTryEnterMutex(HANDLE hMutex);
+BASE_EXPORT void   XENAPI OSLeaveMutex(HANDLE hMutex);
+BASE_EXPORT void   XENAPI OSCloseMutex(HANDLE hMutex);
+</pre>
+<p>  This is similar to a windows mutex/critical section.</p>
+
+
+
+<pre>BASE_EXPORT DWORD  XENAPI OSGetSystemTime();</pre>
+
+<p>  Gets the current system time in milliseconds.</p>
+
+
+<pre>
+BASE_EXPORT void __cdecl  OSMessageBox(const TCHAR *format, ...);
+</pre>
+
+<pre>
+BASE_EXPORT void __cdecl  OSDebugOut(const TCHAR *format, ...);
+</pre>
+<p>  Sends data to the debugger output window</p>
+
+<pre>
+BASE_EXPORT void __cdecl Log(const TCHAR *format, ...);
+</pre>
+
+<p>Use this function to add a line to the log</p>
+
+<pre>BASE_EXPORT void __cdecl ErrOut(const TCHAR *format, ...);</pre>
+
+<p>This function will cause the program to safely terminate when an unrecoverable
+error occurs.  I probably use this too much to be perfectly honest.</p>
+
+</div>
+
+</body>
+</html>
+

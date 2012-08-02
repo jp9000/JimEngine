@@ -1,0 +1,17 @@
+Network "Network"
+OK      "OK"
+Port    "Port"
+
+MainMenu.File   "&File"
+MainMenu.Help   "&Help"
+
+MainMenu.File.ConfigServers "Configure &Servers..."
+MainMenu.File.Connect       "&Connect to Network..."
+MainMenu.File.Exit          "E&xit"
+MainMenu.File.Options       "&Options..."
+MainMenu.File.ReloadScripts "&Reload Scripts"
+
+MainMenu.Help.About "&About..."
+
+PopupMenus.Channel.GetInfo      "Get Info"
+PopupMenus.Channel.JoinChannel  "Join Channel"

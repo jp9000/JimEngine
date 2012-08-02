@@ -1,0 +1,7 @@
+internal class EditorObject : Entity {};
+
+internal class EditorBrush : EditorObject
+{
+    property bool bUseLightmapping   <section="Lightmapping"> <description="Enables this entity to recieve lightmaps.\r\nNote that animated objects cannot be lightmapped.">;
+    property int  lightmapResolution <section="Lightmapping"> <type=scroller(2, 1024, 2)> <description="Sets the texture resolution for lightmaps.">;
+};

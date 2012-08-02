@@ -1,0 +1,26 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ResourceManager.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal Material GetMaterial(string name);
+
+internal Texture GetTexture(string name, bool bGenMipMaps=1);
+internal CubeTexture GetCubeTexture(string name, bool bGenMipMaps=1);
+internal int AddTextureRef(BaseTexture texture);
+
+internal int ReleaseMaterial(Material material);
+internal int ReleaseMaterial(string name);
+internal int ReleaseTexture(BaseTexture texture);
+internal int ReleaseTexture(string name);
+
+internal Shader       GetPixelShader(string name);
+internal Shader       GetVertexShader(string name);
+internal Effect       GetEffect(string name);
+internal Effect       GetEffect(int i);
+
+internal Sound NewSound(string name, bool b3DSound, bool bSelfDestruct=false);

@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li class="test">Object System</li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>The Object system (Object.h)</h2>
+
+<pre>class BASE_EXPORT Object</pre>
+
+<p>  All major classes are derived from Object.  To take advantage of the features the Object system provides,
+the class must be derived from Object or an Object-derived class.  One must use this macro at the top of the
+class, for example:</p>
+<pre class="example">
+class IAmMadeOfCheese : public Object
+{
+    CLASS_DECLARE(IAmMadeOfCheese, Object);
+    ...
+};
+</pre>
+<p>  Then, in the appropriate source file, you use the CLASS_DEFINE (or CLASS_DEFINE_ABSTRACT for abstract classes) macros.</p>
+<pre class="example">
+//IAmMadeOfCheese.cpp
+
+#include "MyMainHeader.h"
+
+CLASS_DEFINE(IAmMadeOfCheese);
+</pre>
+<p>  The ClassID system then automatically stores class information when an object is created with those macros.</p>
+
+
+<hr /><!--======================================================================-->
+
+<h3>Allocating Object-derived classes</h3>
+
+<pre>classtype* CreateObject(classtype)</pre>
+
+<p>  Global function.</p>
+<p>  This macro will automatomatically Create an object of classname and return the same value type,
+as well as call Init() on the object.  If you wish to manually initialize data, you can use new, set up your data, and then
+call Init manually.</p>
+
+
+
+<pre>Object* CreateFactoryObject(TSTR lpClassName, BOOL bInitialize=TRUE)</pre>
+
+<p>  Global function.</p>
+<p>  This function will create an Object-based class by string name.  Set bInitialize to FALSE if you wish to manually call
+Init() on your object.</p>
+
+<p>This function also has the unique ability of being able to create objects of outside modules.  For example if I did:</p>
+
+<pre class="example">Object *myOutsideObject = CreateFactoryObject(TEXT("MyOutsideModule:MyOutsideClass"), FALSE);</pre>
+
+<p>It would attempt to load the library MyOutsideModule.xxt and create an object with the class called MyOutsideClass that
+would exist within it.  Usually, like in the example you would set the bInitialize parameter to FALSE and initialize scripted variables and then
+call Init() after that, however.</p>
+
+<p>The module will be automatically freed when the level changes or when the level is destroyed.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Destroying objects</h3>
+
+<pre>void DestroyObject(Object* pObj);</pre>
+
+<p>  Global function.</p>
+<p>  Will automatically call Destroy then delete, unless for some strange reason you want to do that yourself, otherwise
+always use this function or SafeDestroy() if the object is of FrameObject.</p>
+
+
+<hr /><!--======================================================================-->
+
+<h3>Nifty functions/typedefs of Object-based classes (which are created by the class macros).</h3>
+
+<pre>typedef [superclass] Super;</pre>
+
+<p>  You've probably seen this before in many other class and object system implementations, lets you call
+the super-class of the current class without necessarily calling it by name directly.  For example:</p>
+
+<pre class="example">void IAmMadeOfCheese::Init()
+{
+    Super::Init();  //seeing as the super class is Object, this is the same as calling Object::Init()
+}
+</pre>
+
+
+<pre>virtual ClassID* GetObjectClassID()</pre>
+
+<p>  Lets you obtain the top ClassID for an object, regardless of what variable type the object is currently stored as.</p>
+
+
+
+<pre>virtual BOOL IsOf(ClassID *cls)
+virtual BOOL IsOf(TSTR lpClass)</pre>
+
+<p>  Returns TRUE if the object is of or derived of cls or lpClass, otherwise FALSE.  This is typically what you'd want to use most
+of the time in combination with the GetClassID macro.  Example:</p>
+
+
+<pre class="example">testObj-&gt;IsOf(GetClassID(TestClass))</pre>
+
+<p>or</p>
+
+<pre class="example">testObj-&gt;IsOf(TEXT("TestClass"))</pre>
+
+
+<hr /><!--======================================================================-->
+
+<h3>Object Implementable functions</h3>
+
+
+
+<pre>virtual void Init()</pre>
+
+<p>  Used to initialize data after the object has been created.  Typically the only time you want to *call* this function
+manually is when when your Init relys on scripted variables (which are initialized before this function is called)
+and you wish to programmaticaly create an object with scripted variables (which you'd create with new or with the
+bInitialize parameter of CreateFactoryObject set to FALSE).</p>
+
+<p>  Also useful if you don't wish to bypass the superclass Init(), but generally it's a good idea to call Super::Init()
+if you don't need to.</p>
+
+<p>  Init() is very important for processing any scripted variable data that may have been set in the editor or in script
+(when scripting is implemented).  For example, when loading a level, user-set scripted information (object properties)
+is set before Init() is called, and Init() takes that data and does something useful with it if necessary.  All
+Textures/sounds/etc that are used as properties are stored as strings in script and must be processed to the actual
+thing in Init();</p>
+
+<p>  Unless purposely trying to bypass a Init() of a superclass always call Super::Init();.</p>
+
+
+
+<pre>virtual void Destroy()</pre>
+
+<p>  Called right before actual destruction.  This is almost never manually called.</p>
+
+<p>  Unless purposely trying to bypass a Destroy() of a superclass always call Super::Destroy();.</p>
+
+
+
+<pre>virtual void Reinitialize()</pre>
+
+<p>  This function is only used in the editor if you have scripted variables and need to reinitialize data based on
+those parameters when the user changes one of those values in the editor.</p>
+
+<p>  Unless purposely trying to bypass a Reinitialize() of a superclass always call Super::Reinitialize();.</p>
+
+
+<pre>virtual void Serialize(Serializer &amp;s)</pre>
+
+<p>  Called for saving data from an object to save game data/level file when saving the level in the editor, or whatever
+else.  Don't use for scripted variables.  Be very sure to call Super::Serialize(s) in your implementation.</p>
+
+<p>  Unless purposely trying to bypass a Serialize() of a superclass always call Super::Serialize(s);.</p>
+
+</div>
+
+</body>
+</html>
+

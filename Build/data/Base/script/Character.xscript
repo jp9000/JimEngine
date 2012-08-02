@@ -1,0 +1,16 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Character.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal abstract class Character : AnimatedEntity
+{
+    internal Controller GetController();
+    internal Controller SetController(Controller newController);
+    
+    implementable void AssignDefaultController() {}
+};
+

@@ -1,0 +1,46 @@
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Cel bump mapping Shader
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+#include "lightParams.inc"
+
+property float celSplits = 2.0f
+      <name = "Cell Value">
+      <type = scroller(2.0f, 20.0f, 1.0f)>;
+
+//=================================================================
+//  Lighting Function
+//=================================================================
+
+float4 DoLighting(float2 TexCoord,
+                  float3 LightVector,
+                  float3 HalfVector,
+                  float3 lightColor,
+                  float specularLevel,
+                  float specularPower)
+{
+    float4 output;
+
+    float4 diffuse      = diffuseTexture.Sample(textureSampler, TexCoord);
+    float4 normalIn     = normalMap.Sample(textureSampler, TexCoord);
+    float3 specularIn   = specularMap.Sample(textureSampler, TexCoord);
+
+    float3 normal = 2.0*(normalIn.xyz-0.5);
+
+    float3 shade = dot(normalize(LightVector), normal);
+    shade = saturate(floor(shade*celSplits)/(celSplits-1.0f));
+
+    float3 specular = saturate(dot(normalize(HalfVector), normal));
+    specular  = pow(specular, specularPower);
+    specular  = saturate(floor(specular*2.0f));
+    specular *= specularIn.xyz;
+    specular  = saturate(specular*specularLevel);
+
+    output.xyz = ((diffuse.xyz*shade)+specular)*lightColor;
+    output.a = diffuse.a;
+
+    return output;
+}
+
+#include "lightFuncs.inc"

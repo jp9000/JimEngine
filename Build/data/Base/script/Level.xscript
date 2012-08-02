@@ -1,0 +1,19 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Level.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal abstract class Level : FrameObject
+{
+    internal AIPath GetEntityPath(Entity ent, Vect targetPos);
+
+    internal Camera GetCurrentCamera();
+};
+
+internal bool CreateBareLevel(string levelClass);
+internal bool LoadLevel(string levelPath);
+internal Level GetLevel();

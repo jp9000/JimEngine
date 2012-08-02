@@ -1,0 +1,199 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Physics.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+enum PhyAxis
+{
+    PhyAxis_X,
+    PhyAxis_Y,
+    PhyAxis_Z
+};
+
+struct PhyCollisionInfo
+{
+    PhyObject hitObj;
+
+    Vect hitPos;
+    Vect hitNorm;
+};
+
+//default flags (optional)
+enum
+{
+    PHY_GHOST      = (1<<11),
+    PHY_KINEMATIC  = (1<<12),
+    PHY_DYNAMIC    = (1<<13),
+    PHY_STATIC     = (1<<14),
+    PHY_ALL        = -1
+};
+
+
+/*==========================================================================
+  Physics Shapes
+===========================================================================*/
+
+internal class PhyShape : Object {};
+
+internal class PhySphere : PhyShape
+{
+    internal float GetRadius();
+};
+
+internal class PhyBox : PhyShape
+{
+    internal Vect GetHalfExtents();
+};
+
+internal class PhyCylinder : PhyShape
+{
+    internal float GetHalfHeight();
+    internal float GetRadius();
+    internal PhyAxis GetAxis();
+};
+
+internal class PhyCapsule : PhyShape
+{
+    internal float GetHalfHeight();
+    internal float GetRadius();
+    internal PhyAxis GetAxis();
+};
+
+internal class PhyCone : PhyShape
+{
+    internal float GetHeight();
+    internal float GetRadius();
+    internal PhyAxis GetAxis();
+};
+
+internal class PhyCompound : PhyShape
+{
+    internal void AddShape(PhyShape shape, Vect pos, Quat rot);
+};
+
+internal class PhyStaticMesh : PhyShape {};
+internal class PhyDynamicMesh : PhyShape {};
+
+
+/*==========================================================================
+  Physics Objects
+===========================================================================*/
+
+internal class PhyObject : Object
+{
+    internal void SetPos(Vect pos);
+    internal void SetRot(Quat rot);
+
+    internal Vect GetPos();
+    internal Quat GetRot();
+    internal void GetCurrentTransform(out Vect pos, out Quat rot);
+
+    internal void SetShape(PhyShape shape);
+    internal PhyShape GetShape();
+
+    internal void SetEntityOwner(Entity ent);
+    internal Entity GetEntityOwner();
+
+    //Sets the collision group this object belongs to and collision mask of groups it can collide with
+    internal void SetFilter(int collideGroups, int collideMask);
+
+    internal bool GetLineCollision(Vect p1, Vect p2, out PhyCollisionInfo collisionInfo);
+    internal bool GetRayCollision(Vect rayOrigin, Vect rayDirection, out PhyCollisionInfo collisionInfo, float rayLength=1000.0f);
+
+    internal bool GetConvexCollision(PhyShape shape, Vect p1, Vect p2, out PhyCollisionInfo collisionInfo);
+
+    internal void Activate();
+    internal void Deactivate();
+    internal bool IsActive();
+
+    internal void EnableCollisionCallback(bool bEnable);
+
+    internal void ApplyImpulse(Vect impulse);
+    internal void ApplyRelativeImpulse(Vect relativePos, Vect impulse);
+
+    internal void SetVelocity(Vect linearVelocity);
+    internal Vect GetVelocity();
+
+    internal Bounds GetBounds();
+};
+
+internal class PhyGhost : PhyObject
+{
+    internal void UpdatePositionalData();
+
+    internal int NumOverlappingObjects();
+    internal PhyObject GetOverlappingObject(int index);
+};
+
+enum RigidType
+{
+    RigidType_Static,
+    RigidType_Kinematic,
+    RigidType_Dynamic
+};
+
+internal class PhyRigid : PhyObject
+{
+    internal RigidType GetType();
+
+    internal void  MakeStatic();
+    internal void  MakeKinematic();
+    internal void  MakeDynamic(float mass);
+
+    internal void  SetRestitution(float restitution);
+    internal float GetRestitution();
+
+    internal void  SetFriction(float friction);
+    internal float GetFriction();
+};
+
+internal class PhyCharacter : PhyObject
+{
+    internal void SetMoveDirection(Vect nextPos);
+    internal Vect GetMoveDirection();
+    internal bool IsFalling();
+    internal void Jump(float speed);
+    internal bool IsMoving();
+
+    internal void  SetFriction(float friction);
+    internal float GetFriction();
+
+    internal void Stop();
+};
+
+/*==========================================================================
+  Physics Constraints
+===========================================================================*/
+
+
+/*==========================================================================
+  Physics System
+===========================================================================*/
+
+internal class PhysicsSystem : FrameObject
+{
+    internal PhySphere      MakeSphere(float radius);
+    internal PhyBox         MakeBox(Vect halfExtents);
+    internal PhyBox         MakeBox(float halfX, float halfY, float halfZ);
+    internal PhyCylinder    MakeCylinder(float halfHeight, float radius, PhyAxis axis=PhyAxis_Y);
+    internal PhyCapsule     MakeCapsule(float halfHeight, float radius, PhyAxis axis=PhyAxis_Y);
+    internal PhyCone        MakeCone(float height, float radius, PhyAxis axis=PhyAxis_Y);
+    internal PhyCompound    MakeCompound();
+
+    internal PhyRigid       CreateStaticObject(PhyShape shape, Vect pos, Quat rot, int collideGroups=PHY_STATIC, int collideMask=PHY_ALL);
+    internal PhyRigid       CreateKinematicObject(PhyShape shape, Vect pos, Quat rot, int collideGroups=PHY_KINEMATIC, int collideMask=PHY_ALL);
+    internal PhyRigid       CreateDynamicObject(PhyShape shape, Vect pos, Quat rot, float mass, int collideGroups=PHY_DYNAMIC, int collideMask=PHY_ALL);
+
+    internal PhyCharacter   CreateCharacterObject(PhyShape shape, Vect pos, Quat rot, float mass, int collideGroups=PHY_DYNAMIC, int collideMask=PHY_ALL);
+
+    internal PhyGhost       CreateGhost(int collideGroups=PHY_GHOST, int collideMask=PHY_ALL);
+
+    internal bool           GetLineCollision(Vect p1, Vect p2, out PhyCollisionInfo collisionInfo, int filter=PHY_ALL);
+    internal bool           GetRayCollision(Vect rayOrigin, Vect rayDirection, out PhyCollisionInfo collisionInfo, int filter=PHY_ALL, float rayLength=1000.0f);
+    internal bool           GetConvexCollision(PhyShape shape, Vect p1, Vect p2, out PhyCollisionInfo collisionInfo, int filter=PHY_ALL);
+};
+
+internal PhysicsSystem Physics();

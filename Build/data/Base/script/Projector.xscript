@@ -1,0 +1,25 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Particle.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+abstract internal class Projector : Entity
+{
+    Effect effect;
+    Texture texture;
+
+    implementable void LoadProjector() {}
+
+    internal void SetPerspective(float fovy, float aspect, float znearIn, float zfarIn);
+    internal void SetFrustum(float left, float right, float top, float bottom, float znear, float zfar);
+    internal void SetOrtho(float left, float right, float top, float bottom, float znear, float zfar);
+};
+
+internal class Decal : Projector
+{
+    Vect4 decalColor;
+};

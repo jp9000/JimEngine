@@ -1,0 +1,14 @@
+﻿
+
+[Material]
+DrawType=2
+Effect=Base:Bump.effect
+
+[Parameters]
+illuminationColor={0.000, 0.000, 0.000, 1.000}
+specularPower=24
+specularLevel=36
+illuminationMap=Base:default/white.tga
+specularMap=Base:default/white.tga
+normalMap=Base:GrayTex1_bm.tga
+diffuseTexture=Base:GrayTex1.tga

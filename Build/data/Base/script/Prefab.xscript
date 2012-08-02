@@ -1,0 +1,10 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Prefab.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal class Prefab : MeshEntity {};

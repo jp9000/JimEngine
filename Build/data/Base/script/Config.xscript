@@ -1,0 +1,17 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Config.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal string GetConfigString(string section, string key, string defaultValue="");
+internal int    GetConfigInt(string section, string key, int defaultValue=0);
+internal float  GetConfigFloat(string section, string key, float defaultValue=0.0f);
+internal Vect4  GetConfigColor(string section, string key);
+
+internal void   SetConfigString(string section, string key, string value);
+internal void   SetConfigInt(string section, string key, int value);
+internal void   SetConfigFloat(string section, string key, float value);
+internal void   SetConfigColor(string section, string key, Vect4 value);

@@ -1,0 +1,47 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Serialization.xscript
+
+  Copyright (c) 2010, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+enum SerializerSeekType
+{
+    SERIALIZE_SEEK_START,
+    SERIALIZE_SEEK_CURRENT,
+    SERIALIZE_SEEK_END
+};
+
+enum CreationDisposition
+{
+    SERIALIZE_CREATENEW=1,
+    SERIALIZE_CREATEALWAYS,
+    SERIALIZE_OPENEXISTING,
+    SERIALIZE_OPENALWAYS
+};
+
+internal class SerializerObject : Object
+{
+    internal void SerializeChar(out int val);
+    internal void SerializeByte(out int val);
+    internal void SerializeShort(out int val);
+    internal void SerializeWord(out int val);
+
+    internal void SerializeInt(out int val);
+    internal void SerializeFloat(out float val);
+    internal void SerializeDouble(out float val);
+    internal void SerializeString(out string val);
+
+    internal void SerializeObject(Object obj);
+
+    internal bool IsLoading();
+
+    internal int GetPos();
+    internal int Seek(int offset, SerializerSeekType seekType);
+};
+
+
+internal SerializerObject CreateFileInputSerializer(string fileName);
+internal SerializerObject CreateFileOutputSerializer(string fileName, CreationDisposition disposition);

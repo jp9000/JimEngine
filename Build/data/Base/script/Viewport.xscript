@@ -1,0 +1,20 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Viewport.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal class Viewport : ControlWindow
+{
+    internal void    SetCamera(Camera cam);
+    internal Camera  GetCamera();
+
+    internal bool    GetMouseRay(int x, int y, out Vect rayPos, out Vect rayDir);
+    internal bool    GetPointViewportPos(Vect point, out Vect2 pos);
+
+    implementable Vect GetListenerPos() {return GetCamera().GetWorldPos();}
+    implementable Quat GetListenerRot() {return GetCamera().GetWorldRot();}
+};

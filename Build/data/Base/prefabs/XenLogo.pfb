@@ -1,0 +1,6 @@
+﻿
+
+[Prefab]
+Materials=Base:XenThingy.mtl
+LightmapRes=128
+ModelFile=Base:XenThingy.xmd

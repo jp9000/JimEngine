@@ -1,0 +1,155 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Particle.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+enum
+{
+    PHY_PARTICLE=4
+};
+
+abstract class Particle : Entity
+{
+    float       fadeValue;      //if fade is enabled in the system, this
+                                //holds the current fade value
+
+    float       friction;       //friction
+    bool        bFade;          //fade
+    Texture     sprite;         //sprite, if needed
+    icolor      color;          //color
+
+    float       curTime;        //current particle life
+    float       endTime;        //ending tick value
+
+    float       curSize;        //current particle size
+
+    float       growth;         //individual particle growth
+
+    float       rotRate;        //current rotation rate
+    float       rotAngle;       //current rotation angle
+
+    float       mass;
+    Vect        Vel;
+
+    void Init()
+    {
+        super.Init();
+
+        fadeValue = 1.0f;
+
+        if(sprite != null)
+            AddTextureRef(sprite);
+
+        phyObject = Physics().CreateDynamicObject(phyShape, GetLocalPos(), GetLocalRot(), mass, PHY_PARTICLE, ~PHY_PARTICLE);
+
+        PhyRigid rigid = (PhyRigid)phyObject;
+        rigid.SetEntityOwner(this);
+        rigid.SetVelocity(Vel);
+    }
+
+    void Destroy()
+    {
+        if(sprite != null)
+            ReleaseTexture(sprite);
+
+        super.Destroy();
+    }
+
+    void Tick(float fTime)
+    {
+        curTime += fTime;
+
+        if(curTime > endTime)
+        {
+            SafeDestroy();
+            return;
+        }
+
+        super.Tick(fTime);
+
+        if(bFade)
+            fadeValue = 1.0f-(curTime/endTime);
+
+        if(growth != 0.0f)
+        {
+            curSize += (growth*fTime);
+
+            if(curSize <= 0.0f)
+                curSize = 0.0f;
+        }
+
+        if(rotRate != 0.0f)
+        {
+            rotAngle += (rotRate*fTime);
+
+            while(rotAngle >= 360.0f)
+                rotAngle -= 360.0f;
+
+            while(rotAngle <= 0.0f)
+                rotAngle += 360.0f;
+        }
+    }
+};
+
+
+class SpriteParticle : Particle
+{
+    void Init()
+    {
+        bRenderable = true;
+
+        super.Init();
+    }
+
+    void Render()
+    {
+        DepthWriteEnable(false);    //turn off writing to the depth buffer
+
+        DepthFunction(GS_LESS);     //only draw if it's less than the depth
+                                    //buffer (if it's visible)
+
+        EnableBlending(true);       //enable alpha blending
+
+        //make it so the color blending is multiplied by the source alpha
+        BlendFunction(GS_BLEND_SRCALPHA, GS_BLEND_INVSRCALPHA);
+
+        //load the sprite texture
+        LoadTexture(sprite);
+
+        //set material color
+        icolor alphaFade = cast<int>(fadeValue*255.0f) << 24;
+
+        icolor newColor = (color&0xFFFFFF) | alphaFade;
+
+        //---------------------------------------------------------------------
+
+        float halfSize = curSize*0.5f;
+
+        MatrixPush();  //save the current matrix, make peace with the machines
+        MatrixTranslate(GetWorldPos());
+        MatrixRotate(GetLevel().GetCurrentCamera().GetWorldRot());
+        MatrixRotate(0.0f, 0.0f, 1.0f, RAD(rotAngle));
+
+        RenderStart();
+            Vertex(halfSize, -halfSize);   TexCoord(0.0f, 1.0f, 0.0f);
+            Vertex(halfSize, halfSize);    TexCoord(0.0f, 0.0f, 0.0f);
+            Vertex(-halfSize, -halfSize);  TexCoord(1.0f, 1.0f, 0.0f);
+            Vertex(-halfSize, halfSize);   TexCoord(1.0f, 0.0f, 0.0f);
+        RenderStop(GS_TRIANGLESTRIP);
+
+        MatrixPop();   //matrix reloaded...  reload the original matrix
+
+        LoadIndexBuffer(null);
+        LoadVertexBuffer(null);
+
+        //---------------------------------------------------------------------
+
+        LoadTexture(null);
+
+        DepthWriteEnable(true);
+    }
+};
+

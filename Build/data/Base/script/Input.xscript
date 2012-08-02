@@ -1,0 +1,168 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Input.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+enum
+{
+    KBC_ESCAPE,
+    KBC_1,
+    KBC_2,
+    KBC_3,
+    KBC_4,
+    KBC_5,
+    KBC_6,
+    KBC_7,
+    KBC_8,
+    KBC_9,
+    KBC_0,
+    KBC_MINUS,
+    KBC_EQUALS,
+    KBC_BACK,
+    KBC_TAB,
+    KBC_Q,
+    KBC_W,
+    KBC_E,
+    KBC_R,
+    KBC_T,
+    KBC_Y,
+    KBC_U,
+    KBC_I,
+    KBC_O,
+    KBC_P,
+    KBC_LBRACKET,
+    KBC_RBRACKET,
+    KBC_RETURN,
+    KBC_LCONTROL,
+    KBC_A,
+    KBC_S,
+    KBC_D,
+    KBC_F,
+    KBC_G,
+    KBC_H,
+    KBC_J,
+    KBC_K,
+    KBC_L,
+    KBC_SEMICOLON,
+    KBC_APOSTROPHE,
+    KBC_TILDE,
+    KBC_LSHIFT,
+    KBC_BACKSLASH,
+    KBC_Z,
+    KBC_X,
+    KBC_C,
+    KBC_V,
+    KBC_B,
+    KBC_N,
+    KBC_M,
+    KBC_COMMA,
+    KBC_PERIOD,
+    KBC_SLASH,
+    KBC_RSHIFT,
+    KBC_MULTIPLY,
+    KBC_LALT,
+    KBC_SPACE,
+    KBC_CAPSLOCK,
+    KBC_F1,
+    KBC_F2,
+    KBC_F3,
+    KBC_F4,
+    KBC_F5,
+    KBC_F6,
+    KBC_F7,
+    KBC_F8,
+    KBC_F9,
+    KBC_F10,
+    KBC_NUMLOCK,
+    KBC_SCROLLLOCK,
+    KBC_NUMPAD7,
+    KBC_NUMPAD8,
+    KBC_NUMPAD9,
+    KBC_SUBTRACT,
+    KBC_NUMPAD4,
+    KBC_NUMPAD5,
+    KBC_NUMPAD6,
+    KBC_ADD,
+    KBC_NUMPAD1,
+    KBC_NUMPAD2,
+    KBC_NUMPAD3,
+    KBC_NUMPAD0,
+    KBC_DECIMAL,
+    KBC_F11,
+    KBC_F12,
+    KBC_NUMPADENTER,
+    KBC_RCONTROL,
+    KBC_DIVIDE,
+    KBC_SYSRQ,
+    KBC_RALT,
+    KBC_PAUSE,
+    KBC_HOME,
+    KBC_UP,
+    KBC_PAGEDOWN,
+    KBC_LEFT,
+    KBC_RIGHT,
+    KBC_END,
+    KBC_DOWN,
+    KBC_PAGEUP,
+    KBC_INSERT,
+    KBC_DELETE,
+
+    MOUSE_LEFTBUTTON,
+    MOUSE_MIDDLEBUTTON,
+    MOUSE_RIGHTBUTTON,
+    MOUSE_WHEEL,
+    MOUSE_MOVE,
+
+    KBC_CONTROL=0xFFFFFFFE,
+    KBC_ALT=0xFFFFFFFD,
+    KBC_SHIFT=0xFFFFFFFC,
+
+    STATE_LBUTTONDOWN=0x001,
+    STATE_RBUTTONDOWN=0x010,
+    STATE_MBUTTONDOWN=0x100
+};
+
+internal abstract class MouseInputHandler : Object
+{
+    implementable void MouseHandler(int action, int buttonStates, int param)    {}
+
+    implementable void MouseDown(int button)                                    {}
+    implementable void MouseUp(int button)                                      {}
+    implementable void MouseMove(int x, int y, int x_offset, int y_offset)      {}
+    implementable void MouseWheel(int scroll)                                   {}
+};
+
+internal abstract class KeyboardInputHandler : Object
+{
+    bool bCharInput;
+
+    implementable void KeyboardHandler(int kbc, bool bDown) {}
+
+    implementable void KeyDown(int kbc)                     {}
+    implementable void KeyUp(int kbc)                       {}
+};
+
+internal class Input : Object
+{
+    internal void PushKBHandler(KeyboardInputHandler kbHandler, bool bCharInput=false);
+    internal void PushMouseHandler(MouseInputHandler mouseHandler);
+
+    internal KeyboardInputHandler GetCurKBHandler();
+    internal MouseInputHandler GetCurMouseHandler();
+
+    internal void EmulateMouseInput(int action, int buttonStates, int param);
+    internal void EmulateKBInput(int kbc, bool keydown);
+
+    internal bool GetButtonState(int key);
+};
+
+Input GetInput() {return GS().GetInput();}
+
+
+internal string GetInputCodeName(int code);
+
+internal void PushKBHandler(KeyboardInputHandler kbHandler, bool bCharInput=false);
+internal void PushMouseHandler(MouseInputHandler mouseHandler);

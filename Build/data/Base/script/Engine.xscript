@@ -1,0 +1,18 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Engine.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal abstract class Engine : Object
+{
+    internal int GetCurFPS();
+    internal int NumPolys();
+    internal int NumLights();
+
+    internal bool InEditor();
+};
+
+internal Engine GetEngine();

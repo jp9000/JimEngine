@@ -1,0 +1,29 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  MusicManager.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+enum MusicTransition
+{
+    MusicTransition_Instant,
+    MusicTransition_FastFade,
+    MusicTransition_Fade,
+    MusicTransition_SlowFade
+};
+
+internal class MusicManager : FrameObject
+{
+    internal bool Play(string strIntroFile="", string strLoopFile, float playPos=0.0f, MusicTransition transitionType=MusicTransition_Instant);
+    internal void Stop();
+
+    internal float GetCurrentPos();
+
+    internal void SetVolume(float volume);
+    internal float GetVolume();
+};
+
+internal MusicManager MM();

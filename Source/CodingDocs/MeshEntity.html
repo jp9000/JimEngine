@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li class="test">Mesh Entities</li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Mesh Entity class (MeshEntity.h)</h2>
+
+<p>Unlike the Entity class, this is the class used to render full 3D meshes.</p>
+
+<p>Rendering does not occur through Render() but instead through multiple functions
+depending on the type of rendering being done.  Rendering is also automatically handled, therefore there is no need to use an implemented function for rendering, though
+it is possible you may still want to use the PreRender() or PostRender() functions for whatever reason.</p>
+
+<p><b>Important Note</b>: In whatever class you make that is derived from MeshEntity, in your Init() you must to set the strMeshName variable and then
+call Super::Init() (note again this must be done <i>before</i> calling Super::Init()).  If it is an
+animated entity, animation data will also be automatically loaded as well for use.</p>
+
+<hr /><!--======================================================================-->
+<h3>MeshEntity protected variables</h3>
+
+<pre>String strMeshName;</pre>
+<p>Use this in your Init() before calling Super::Init() to set the mesh.  The directory is relative to data\models and the extension is not included,
+so if I have c:\build\data\models\Alien.xmd I would use strMeshName = "Alien"; here.</p>
+
+<hr /><!--======================================================================-->
+<h3>MeshEntity class functions</h3>
+
+<pre>class BASE_EXPORT MeshEntity : public Entity</pre>
+
+<pre>virtual BOOL EntityInside(const Vect &amp;pos, Entity *ent);</pre>
+<p>If an entity of the specified position is inside this entity returns TRUE, otherwise FALSE.</p>
+
+<pre>
+virtual BOOL GetEntityCollision(const Vect &amp;startPos, Vect &amp;hitPos, Entity *ent, Plane &amp;collisionPlane);
+virtual BOOL GetCollision(const Vect &amp;startPos, Vect &amp;hitPos, Plane &amp;collisionPlane);
+virtual BOOL GetRayCollision(const Vect &amp;startPos, const Vect &amp;dir, Vect &amp;hitPos, Plane &amp;collisionPlane);
+</pre>
+<p>You can use these functions to do collision tests on a mesh entity.  If the mesh has BSP collision enabled it will do tests with the BSP, otherwise it will use the cylinder or sphere the entity is using.</p>
+
+<p>hitPos is used for both input and output with GetEntityCollision and GetCollision, with GetRayCollision only for ouput.  If a hit occurs it will be set to the hit point.</p>
+<p>collisionPlane is used only for output.  If a hit occurs it will be set to the plan on which the hit occured.</p>
+
+<pre>void SetMaterial(DWORD texture, Material *material);</pre>
+<p>Sets the material for the specified texture ID on the model.  This must be obtained using the resource manager.  The existing material will released (ref count decreased).</p>
+
+<pre>inline Bounds&amp; GetBounds()</pre>
+<p>Returns the current bounds for this mesh.</p>
+
+<pre>inline Bounds&amp; GetInitialBounds()</pre>
+<p>Returns the Initial bounds for this mesh (the base bounds, unmodified by animation and such)</p>
+
+<pre>
+inline Matrix&amp; GetTransform()
+inline Matrix&amp; GetInvTransform()
+</pre>
+<p>Returns the current transform and inverted transform for this mesh entity.</p>
+
+
+</div>
+
+</body>
+</html>
+

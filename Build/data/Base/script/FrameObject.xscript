@@ -1,0 +1,23 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  FrameObject.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal abstract class FrameObject : Object
+{
+    implementable void PreFrame()             {}
+
+    implementable void PreRender()            {}
+    implementable void Render()               {}
+    implementable void PostRender()           {}
+
+    implementable void Tick(float fSeconds)   {}
+
+    internal int  SafeRelease();
+    internal void SafeDestroy();
+
+    bool bRenderable;
+};

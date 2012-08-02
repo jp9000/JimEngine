@@ -1,0 +1,179 @@
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Depth Shadow Shader
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+//=================================================================
+//  Parameters
+//=================================================================
+
+float4x4    ViewProj;
+float4x4    World =
+{
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+};
+
+float3      Scale = {1.0f, 1.0f, 1.0f};
+
+float3      lightPos;
+float       lightRange;
+
+uniform float4x4    boneTransforms[4];
+
+//=================================================================
+//  Vertex Input
+//=================================================================
+
+struct Vertex {
+    float4 Position : POSITION;
+};
+
+struct AnimatedVertex {
+    float4 Position : POSITION;
+    float4 Weights  : TEXCOORD1;
+};
+
+struct PixelOutput {
+    float4 color : COLOR;
+};
+
+//=================================================================
+//  GetZDepth
+//=================================================================
+
+struct ZDepthData {
+    float4 Position    : POSITION;
+    float  ZVal        : TEXCOORD0;
+};
+
+ZDepthData GetZDepthVS(Vertex input,
+                       uniform float lightRangeI)
+{
+    ZDepthData PI;
+    
+    float4 newPos = input.Position;
+    newPos.xyz *= Scale;
+
+    PI.Position = mul(mul(newPos, World), ViewProj);
+    PI.ZVal = PI.Position.z*lightRangeI;
+
+    return PI;
+}
+
+ZDepthData AnimatedGetZDepthVS(AnimatedVertex input,
+                               uniform float lightRangeI)
+{
+    ZDepthData PI;
+    
+    float4 newPos;
+    newPos  = mul(input.Position, boneTransforms[0]) * input.Weights.x;
+    newPos += mul(input.Position, boneTransforms[1]) * input.Weights.y;
+    newPos += mul(input.Position, boneTransforms[2]) * input.Weights.z;
+    newPos += mul(input.Position, boneTransforms[3]) * input.Weights.w;
+    newPos.xyz *= Scale;
+
+    PI.Position = mul(mul(newPos, World), ViewProj);
+    PI.ZVal = PI.Position.z*lightRangeI;
+
+    return PI;
+}
+
+PixelOutput GetZDepthPS(ZDepthData PI)
+{
+    PixelOutput PO;
+
+    PO.color = PI.ZVal;
+
+    return PO;
+}
+
+//=================================================================
+//  GetDepth
+//=================================================================
+
+struct DepthData {
+    float4 Position    : POSITION;
+    float3 ScaledVert  : TEXCOORD0;
+};
+
+DepthData GetDepthVS(Vertex input,
+                     uniform float  lightRangeI)
+{
+    DepthData PI;
+
+    float4 newPos = input.Position;
+    newPos.xyz *= Scale;
+    newPos = mul(newPos, World);
+
+    float3 lightVector = lightPos-newPos;
+
+    PI.Position = mul(newPos, ViewProj);
+    PI.ScaledVert = (lightVector*lightRangeI);
+
+    return PI;
+}
+
+DepthData AnimatedGetDepthVS(AnimatedVertex input,
+                             uniform float  lightRangeI)
+{
+    DepthData PI;
+
+    float4 newPos;
+    newPos  = mul(input.Position, boneTransforms[0]) * input.Weights.x;
+    newPos += mul(input.Position, boneTransforms[1]) * input.Weights.y;
+    newPos += mul(input.Position, boneTransforms[2]) * input.Weights.z;
+    newPos += mul(input.Position, boneTransforms[3]) * input.Weights.w;
+    newPos.xyz *= Scale;
+    newPos = mul(newPos, World);
+
+    float3 lightVector = lightPos-newPos;
+
+    PI.Position = mul(newPos, ViewProj);
+    PI.ScaledVert = (lightVector*lightRangeI);
+
+    return PI;
+}
+
+PixelOutput GetDepthPS(DepthData PI)
+{
+    PixelOutput PO;
+
+    PO.color = length(PI.ScaledVert);
+
+    return PO;
+}
+
+//=================================================================
+//  techniques
+//=================================================================
+
+technique GetZDepth
+{
+    pass Normal
+    {
+        VertexShader = GetZDepthVS(1.0f/lightRange);
+        PixelShader  = GetZDepthPS();
+    }
+    pass Animated
+    {
+        VertexShader = AnimatedGetZDepthVS(1.0f/lightRange);
+        PixelShader  = GetZDepthPS();
+    }
+}
+
+technique GetDepth
+{
+    pass Normal
+    {
+        VertexShader = GetDepthVS(1.0f/lightRange);
+        PixelShader  = GetDepthPS();
+    }
+    pass Animated
+    {
+        VertexShader = AnimatedGetDepthVS(1.0f/lightRange);
+        PixelShader  = GetDepthPS();
+    }
+}

@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li class="test">Cameras/Viewports</li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Cameras and Viewports (Camera.h)</h2>
+
+<p>A viewport is a regular 2D window object in which the current 3D level is drawn.</p>
+
+<p>Cameras are assigned to a viewport window which are used as a means of viewing the 3D world.</p>
+
+<p>For main game viewports, one typically takes keyboard/mouse input through this window as well.</p>
+
+<hr /><!--======================================================================-->
+<h3>Camera class functions</h3>
+
+<pre>class BASE_EXPORT Camera : public Entity</pre>
+
+<pre>
+void SetPerspective(float fovy, float aspect, float znearIn, float zfarIn);
+void SetFrustum(float leftIn, float rightIn, float topIn, float bottomIn, float znearIn, float zfarIn);
+void SetOrtho(float leftIn, float rightIn, float topIn, float bottomIn, float znearIn, float zfarIn);
+</pre>
+<p>Sets the camera view information.  This information will be automatically loaded as a projection matrix when the cmaera is used for
+rendering a level.</p>
+
+<pre>inline ViewClip GetClip() const</pre>
+<p>Gets the current clipping planes for the camera.  These clipping planes (through the ViewClip structure) are used for discerning
+visibility of objects and areas through the camera.  You should almost never need to use this because visibility is automatically handled.</p>
+
+<pre>inline Viewport *GetAssignedViewport()</pre>
+<p>If the camera is assigned to a viewport, returns the viewport, otherwise NULL.</p>
+
+<pre>inline BOOL IsSoundCamera()</pre>
+<p>Returns TRUE if this camera can be used to hear sound with, otherwise FALSE.</p>
+
+<pre>inline void SetSoundCamera(BOOL bPlaySound)</pre>
+<p>Sets whether this camera can relay sound through it or not.</p>
+
+<pre>inline BOOL IsPerspective()</pre>
+<p>Returns TRUE if this camera is a perspective/frustrum camera, otherwise FALSE if it's an orthographic camera.</p>
+
+<pre>
+inline float Left() const
+inline float Right() const
+inline float Top() const
+inline float Bottom() const
+inline float Near() const
+inline float Far() const
+</pre>
+<p>Returns the main projection values.</p>
+
+
+<hr /><!--======================================================================-->
+<h3>Viewport class functions</h3>
+<p>When this window is rendered, will draw the world through the current camera assigned to it.</p>
+
+<pre>class BASE_EXPORT Viewport : public ControlWindow</pre>
+
+<pre>
+void    SetCamera(Camera *cam);
+Camera *GetCamera();
+</pre>
+<p>Sets or retrieves the current camera assigned to this viewport.</p>
+
+</div>
+
+</body>
+</html>
+

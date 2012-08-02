@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li class="test">Memory Stuff</li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Memory allocation/deallocation (defined in Alloc.h)</h2>
+
+<p>  Outside of the C++ new and delete (which are mapped to the allocation class) and object stuff,
+please use these macros for general memory allocation/deallocation:</p>
+
+<pre>
+void* Allocate(size)
+void* ReAllocate(ptr, size)
+void  Free(ptr)
+</pre>
+
+<p>  ReAllocate will preserve all previous data, but will truncate if the new size is smaller.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Global inline memory functions (defined in inline.h)</h3>
+
+<pre>unsigned int PtrTo32(void *ptr)</pre>
+
+<p>  Converts a pointer to a 32bit value.  Used for 64bit-safe pointer conversion, hopefully you know
+what you're doing if you're actually using this.  ^_^</p>
+
+
+
+<pre>void mcpy(void *pDest, const void *pSrc, size_t iLen)</pre>
+
+<p>  Copies iLen bytes from pSrc to pDest</p>
+
+
+
+<pre>void mcpyrev(void *pDest, const void *pSrc, size_t iLen)</pre>
+
+<p>  Copies iLen bytes in reverse from pSrc to pDest.</p>
+
+
+
+<pre>void zero(void *pDest, size_t iLen)</pre>
+
+<p>  Clears pDest by iLen bytes to zero.</p>
+
+
+
+<pre>void msetd(void *pDest, DWORD val, size_t iLen)</pre>
+
+<p>  Sets iLen bytes of pDest to a reptition of val (32bit)</p>
+
+
+
+<pre>BOOL mcmp(const void *pDest, const void *pSrc, size_t iLen)</pre>
+
+<p>  Compares iLen bytes of pSrc to pDest.  Returns TRUE if equal, FALSE otherwise</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Memory debugging (defined in DebugAlloc.h)</h3>
+
+<p>  If you need to debug memory issues..  hm, now that I think about it, I could have made this a little less dumb couldn't I?
+My apologies in advance ^_^  ...Right now I just recompile Base.cpp in the engine, switching out the</p>
+
+<pre class="example">MainAllocator = new FastAlloc;</pre>
+
+<p>  ..to either DebugAlloc (for finding leaks), or BasicAlloc (for serious memory issues, such as overflows; malloc/free used in
+BasicAlloc handle this stuff easily and automatically, but are ridiculously slow)</p>
+
+<p>  I'll fix this at some point so you can declare the allocator in the ini, or something.  (Feel free to punch me for being
+lazy and not fixing config files)</p>
+
+<p>  The FastAlloc class can't handle any issues, and cannot locate memory leaks.  However due to the nature of how it works it
+does know if there are memory leaks and will say that there -were- memory leaks.  It can't give any details other than that
+however.</p>
+
+<p>  DebugAlloc is used for finding out precisely where memory leaks are occuring; don't use if you have serious memory issues.
+When enabled, in the log file you'll see something like this:</p>
+
+<pre class="example">
+ID: Track point was not enabled when allocation was made
+Address: 0xf000baa5
+Declared in file MyFile.cpp on line 38
+</pre>
+
+<p>  However, on occasion the allocation may end up being indrectly or in a base engine file, such as Template.h from a List, so you use
+DebugAlloc with the next global function:</p>
+
+<pre class="example">
+//Use this function to begin tracking of memory in some spot of the application.
+//you -really- don't want to place this at the start of the app because your
+//results will usually be random.  Instead, place it somewhere right before where
+//the memory leaks start occuring.
+BASE_EXPORT void EnableMemoryTracking(BOOL bEnable);
+</pre>
+
+<p>  So you would place this function somewhere before a certain area where you believe the memory leak may be occuring.  Then, when
+you look at the log file, you'll see something like this</p>
+
+<pre class="example">
+ID: 5
+Address: 0xf000baa5
+Declared in file Template.h on line 102
+</pre>
+
+<p>  Now that you have an ID for the leak, you can use it to cause the application to break right where the leak is occuring.  In
+the ini file for the app, in [Engine], add BreakOnMemoryID.  set BreakOnMemoryID=5 and it will then break when that memory ID
+is allocated, then you can use your debugger to look at the current call stack and find out specifically where the memory is being
+created from, and promptly fixed.</p>
+
+
+
+<p>  If you have other memory issues, use BasicAlloc to find out what's going on.  The standard C library contains lots of nifty stuff
+for debugging memory, and if memory overflows it'll usually automatically break.</p>
+
+<br />
+
+</div>
+
+</body>
+</html>
+

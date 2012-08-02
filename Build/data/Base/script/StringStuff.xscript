@@ -1,0 +1,28 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  StringStuff.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+string operator+(string str, int i)
+{
+    return str+IntString(i);
+}
+
+string operator+(int i, string str)
+{
+    return IntString(i)+str;
+}
+
+string operator+(string str, float f)
+{
+    return str+FloatString(f);
+}
+
+string operator+(float f, string str)
+{
+    return FloatString(f)+str;
+}

@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li class="test">3D Entities</li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Entity Class (Entity.h)</h2>
+
+<pre>class BASE_EXPORT Entity : public FrameObject</pre>
+
+  <p>Entity is the fundamental base class of all 3D Objects that are located inside a level.</p>
+
+  <p>Like with a window, any entity that will be renderable must have RENDERABLE(TRUE) (or a variable
+value in place of TRUE) defined in their class definition unless the window is derived from an
+already renderable class.</p>
+
+  <p>Entities are usually placed by a user in the level editor so initialization in terms of position
+and such is automatically handled.  However in the case in which it is not, Init() is obviously the
+place you'll want to set any such values.</p>
+
+  <p>What -will- need to be defined in Init() are things like collision/physics information.  That
+information is very important if you want your object to have any interactability on the world
+(unless it's defined in a superclass of course).</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Entity Protected Variables</h3>
+
+
+<pre>Texture *editorSprite;</pre>
+
+  <p>This lets you set what sprite your entity will come up as when viewed in the editor, otherwise
+it will use the default entity sprite.</p>
+
+
+<pre>
+CollisionType   collisionType;
+float           radius;
+float           cylinderHeight;
+</pre>
+  <p>These are items you'll definitely want to set in Init() unless a superclass already does that for
+you.</p>
+
+  <p>collisionType can be one of the following values:</p>
+<pre class="example">
+PointCollision,
+SphereCollision,
+CylinderCollision,
+BSPCollision
+</pre>
+  <p>radius is used for the sphere radius or cylinder radius, and cylinderHeight is used for the cylinder
+Height if you are using a cylinder.</p>
+
+  <p>BSPCollision is used for prefab-like objects or moving collidable objects where you want detailed
+collision.  Only used with MeshEntity.</p>
+
+
+<pre>
+PhyStatus       status;  //physics status
+
+float           mass;    //mass of object
+Vect            Vel;     //velocity
+Vect            Acceleration;
+float           bounce;
+</pre>
+  <p>Some of these items you might want to initialize in Init(), depending on what you want it to do.</p>
+  <p>mass sets how much your object weighs.  ..basically the value you put is how many units it will
+fall per second.</p>
+
+  <p>status can be one of the following values:</p>
+<pre class="example">
+Attached,   //attached to world or moving objects
+Falling,    //falling
+SetOnGround,//used for startup to immidiatly place on the ground
+Flying,     //flying
+Swimming    //swimming
+</pre>
+  <p>bounce is if you want your object to bounce off a wall (like a basketball for example).  The
+current velocity is multiplied by this value at very bounce that occurs.  A value of 1.0 will
+cause it to bounce at the same speed indefinitely.  Less than 1.0 will cause it to slow down on
+bounces.  Over 1.0 will cause it to gain speed when bouncing.</p>
+
+
+<pre>
+BOOL            bCollideWorld;
+BOOL            bCollideObjects;
+BOOL            bInhibitClassCollision;  //inhibit collision with objects of the same class
+BOOL            bBlockObjects;
+</pre>
+  <p>These variables should typically be set in Init() or will default to FALSE.</p>
+
+  <p>bCollideWorld will enable collision with the world (which includes prefabs).</p>
+
+  <p>bCollideObjects will enable collision with other generic cylinder/sphere-based objects,</p>
+
+  <p>bInhibitClassCollision prevents collision from occuring if the object is of the exact same class.</p>
+
+  <p>bBlockObjects is set if you want this object to be collidable.  Differs from bCollideObjects in
+that this is for recieving rather than causing.  Which is probably confusing.  Better just set
+bBlockObjects and bCollideObjects both to true unless you know what you're doing.  Or maybe I don't
+know what -I'm- doing.  *shrug*</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Entity functions</h3>
+
+
+<pre>
+static Entity* FindByClass(ClassID *cls, Entity *parent=NULL);
+static Entity* FindByClass(TSTR lpName);
+static void FindAllByClass(ClassID *cls, List&lt;Entity*&gt; &amp;ents, Entity *parent=NULL);
+static void FindAllByClass(TSTR lpName, List&lt;Entity*&gt; &amp;ents);
+</pre>
+  <p>Finds an entity/entities based on class.</p>
+
+
+
+<pre>static Entity* FindByName(TSTR lpName, Entity *parent=NULL);</pre>
+
+  <p>Finds an entity base upon it's name.  Usually used internally.  See
+GetName/SetName/GenerateUniqueName if you want to use this.</p>
+
+
+<pre>
+virtual void    MoveObject(const Vect &amp;pos);
+virtual void    SetPos(const Vect &amp;pos);
+virtual void    SetRot(const Quat &amp;rot);
+</pre>
+  <p>MoveObject will move object from point A to point B, and collision will be processed.</p>
+
+  <p>SetPos will set the next position will set the absolute local position to the specified
+position. No collision will occur with this function.</p>
+
+  <p>SetRot will set the local rotation.</p>
+
+  <p>All positions are local (relative to the parent object).</p>
+
+
+<pre>
+inline Vect     GetNextPos() const
+
+inline Vect     GetLocalPos() const
+inline Quat     GetLocalRot() const
+inline Vect     GetWorldPos() const
+inline Quat     GetWorldRot() const
+</pre>
+  <p>GetNextPos will get the next movement point for this frame.  This is not the current
+position, but rather the next planned location it will be in the next frame.</p>
+
+  <p>GetLocalPos/Rot get the local position/rotation relative to the parent.</p>
+
+  <p>GetWorldPos/Rot get the actual position/rotation in the world, which is automatically
+calculated each frame (after tick and preframe, but before rendering begins).</p>
+
+
+
+<pre>inline void     UpdatePositionalData()</pre>
+
+  <p>Calling this function will tell the level to re-calculate this entity's positional data
+next frame.  Usually only used internally.</p>
+
+
+
+<pre>
+inline unsigned int  NumChildren() const
+inline Entity*       GetChild(unsigned int i) const
+inline Entity*       GetParent() const
+</pre>
+
+<pre>
+void Attach(Entity *new_parent)
+void Detach()
+</pre>
+  <p>Attaches or detaches an entity to another entity as a child (sets its parent).  Note that
+when you do this that your entity position will become relative to the new parent.</p>
+
+
+<pre>
+inline Window* GetParent()
+
+inline unsigned int NumChildren()
+inline Window* GetChild(unsigned int i)
+</pre>
+  <p>Relatively self-explanatory</p>
+
+
+
+<pre>virtual Entity* DuplicateEntity();</pre>
+
+  <p>Usually only used in the editor, but self-explanatory.</p>
+
+
+<pre>
+inline String   GetName() const
+inline void     SetName(CTSTR lpName)
+void            GenerateUniqueName(CTSTR lpPrefix=NULL);
+</pre>
+  <p>Nifty functions if you want unique identifiers for your objects which can be used for various
+reasons, but most of the time is unnecessary.  I'd recommend using GenerateUniqueName if you
+don't want to risk duplicate names.  Usually names are automatically generated in the editor.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>public Entity functions that probably don't need explanation</h3>
+<pre>
+inline BOOL             CanCollideWithObjects() const
+inline void             SetCollidableWithObjects(BOOL bEnable)
+inline BOOL             CanCollideWithWorld() const
+inline void             SetCollidableWithWorld(BOOL bEnable)
+
+inline BOOL             IsClassCollisionInhibited() const
+
+inline CollisionType    GetCollisionType() const
+inline void             SetCollisionType(CollisionType type)
+inline float            GetRadius() const
+inline void             SetRadius(float newRadius)
+inline float            GetCylinderHeight() const
+inline void             SetCylinderHeight(float newHeight)
+
+inline void             SetVelocity(const Vect &amp;newVel)
+inline Vect             GetVelocity() const
+
+inline PhyStatus        GetCollideStatus()
+inline void             SetCollideStatus(PhyStatus newStatus)
+</pre>
+
+<hr /><!--======================================================================-->
+
+<h3>Entity Implementable Functions</h3>
+
+
+<pre>
+virtual void Prerender()
+virtual void Render()
+virtual void Prerender()
+</pre>
+  <p>Actually defined in FrameObject, but these are the primary functions used for rendering.</p>
+
+  <p><b>NOTE!</b>  Render() is only used for non-mesh-based rendering (lines/sprites/etc).  Mesh-based
+objects are automatically rendered in the pipeline with the MeshEntity class.</p>
+
+  <p>Unless purposely bypassing, generally a good idea to call the superclass versions of these
+functions.</p>
+
+
+<pre>
+virtual void EntityCollision(Entity *ent)
+virtual void WorldCollision()
+</pre>
+  <p>Relatively self-explanatory.  When an entity is collided with EntityCollision will be called
+with the entity that your class has collided with.  When the world is collided with
+WorldCollision will be called.  I should/may probably make these both one function.  *notes to
+self*</p>
+
+
+
+<pre>virtual void    EditorRender()</pre>
+
+  <p>A rendering function specifically for rendering editor stuff, like light radius lines,
+spotlight radius lines, and custom stuff like that depending on the object that you'd like
+to see in the editor when using this object.  See the code for PointLight or Spotlight for an
+example.</p>
+
+
+</div>
+
+</body>
+</html>
+

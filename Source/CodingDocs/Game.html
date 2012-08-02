@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li class="test">Game</li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Game class (Game.h)</h2>
+
+<p>This class is used for the current game mode.  For example, a multiplayer game would typically have multiple game modes,
+such as CTF, deathmatch, and such, in which you could create a version of this class for each.</p>
+
+<p>Through this class you implement game-specific things, primarily your viewport and other game-mode specific things.</p>
+
+<p>The current game is automatically assigned stored in the global "CurrentGame" variable in the Game constructor when one is created.  It is automatically
+set to NULL in the destructor when the current game is destroyed.</p>
+
+<hr /><!--======================================================================-->
+<h3>Game protected variables</h3>
+
+<pre>float GameSpeed;</pre>
+<p>Stores the current game speed, 1.0 is normal, below 1.0 is slower, and above 1.0 is faster.</p>
+
+<pre>Viewport *mainViewport;</pre>
+<p>Stores your main viewport.  Create your custom viewport and assign it to this variable in your Init().</p>
+
+<hr /><!--======================================================================-->
+<h3>Game functions</h3>
+
+<pre>class BASE_EXPORT Game : public Object</pre>
+
+<pre>
+inline void SetGameSpeed(float speed)
+inline float GetGameSpeed() const
+</pre>
+<p>Gets or sets the speed of the current game.</p>
+
+<pre>inline Viewport* GetMainViewport() const</pre>
+<p>Gets the main viewport currently being used in the current game mode.</p>
+
+
+</div>
+
+</body>
+</html>
+

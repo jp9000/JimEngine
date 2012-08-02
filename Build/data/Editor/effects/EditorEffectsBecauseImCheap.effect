@@ -1,0 +1,211 @@
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Editor Stuff
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+//=================================================================
+//  Parameters
+//=================================================================
+
+float4x4 ViewProj;
+float4x4 World =
+{
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+};
+
+//------------
+// QuickGrid/SphereFadeGrid
+//------------
+float3 spherePos;
+float  sphereSize;
+float  yOffset;
+float4 lineColor;
+float  lineLength;
+float  lineOffset;
+
+
+//------------
+// FullPlayerGrid
+//------------
+texture2d playerGrid;
+
+
+//=================================================================
+//  Samplers
+//=================================================================
+
+SamplerState playerGridSampler
+{
+    ADDRESSU  = WRAP;
+    ADDRESSV  = WRAP;
+    FILTER    = ANISOTROPIC;
+};
+
+//=================================================================
+//  Vertex Input
+//=================================================================
+
+struct BasicVertex {
+    float4 Position : POSITION;
+};
+
+
+//=================================================================
+//  QuickGrid
+//=================================================================
+
+BasicVertex VSQuickGridH(BasicVertex input)
+{
+    BasicVertex PI;
+
+    float4 newPos;
+    newPos.x = input.Position.y*lineLength;
+    newPos.y = yOffset;
+    newPos.z = lineOffset;
+    newPos.w = 1.0;
+
+    PI.Position = mul(newPos, ViewProj);
+    return PI;
+}
+
+BasicVertex VSQuickGridV(BasicVertex input)
+{
+    BasicVertex PI;
+
+    float4 newPos;
+    newPos.z = input.Position.y*lineLength;
+    newPos.y = yOffset;
+    newPos.x = lineOffset;
+    newPos.w = 1.0;
+
+    PI.Position = mul(newPos, ViewProj);
+    return PI;
+}
+
+float4 QuickGridPS(BasicVertex input) : COLOR
+{
+    return lineColor;
+}
+
+
+//=================================================================
+//  SphereFadeGrid
+//=================================================================
+
+struct SphereFadeGridVertex {
+    float4 Position : POSITION;
+    float3 ScaledVert : TEXCOORD0;
+};
+
+SphereFadeGridVertex VSSphereFadeGridH(SphereFadeGridVertex input, float sphereSizeI)
+{
+    SphereFadeGridVertex PI;
+
+    float4 newPos;
+    newPos.x = spherePos.x+(input.Position.y*lineLength);
+    newPos.y = yOffset;
+    newPos.z = spherePos.z+lineOffset;
+    newPos.w = 1.0;
+
+    PI.Position = mul(newPos, ViewProj);
+    PI.ScaledVert = (newPos-spherePos)*sphereSizeI;
+    return PI;
+}
+
+SphereFadeGridVertex VSSphereFadeGridV(SphereFadeGridVertex input, float sphereSizeI)
+{
+    SphereFadeGridVertex PI;
+
+    float4 newPos;
+    newPos.z = spherePos.z+(input.Position.y*lineLength);
+    newPos.y = yOffset;
+    newPos.x = spherePos.x+lineOffset;
+    newPos.w = 1.0;
+
+    PI.Position = mul(newPos, ViewProj);
+    PI.ScaledVert = (newPos.xyz-spherePos)*sphereSizeI;
+    return PI;
+}
+
+float4 SphereFadeGridPS(SphereFadeGridVertex input) : COLOR
+{
+    float dist = length(input.ScaledVert);//*sphereSizeI;
+    //clip((1.0-dist)-0.003);
+
+    dist *= dist;
+    float fadeVal = 1.0-saturate(dist);
+    
+    float4 chi = lineColor;
+    chi.w *= fadeVal;
+    
+    return chi;
+}
+
+//=================================================================
+//  FullPlayerGrid
+//=================================================================
+
+struct PlayerGridVertex {
+    float4 Position : POSITION;
+    float2 TexCoord : TEXCOORD0;
+};
+
+PlayerGridVertex VSFullPlayerGrid(BasicVertex input)
+{
+    PlayerGridVertex PI;
+
+    PI.Position = mul(input.Position, ViewProj);
+    PI.TexCoord = input.Position.xz;
+
+    return PI;
+}
+
+float4 PSFullPlayerGrid(PlayerGridVertex PI) : COLOR
+{
+    return playerGrid.Sample(playerGridSampler, PI.TexCoord);
+}
+
+//=================================================================
+//  Techniques
+//=================================================================
+
+
+technique QuickGrid
+{
+    pass p0
+    {
+        VertexShader = VSQuickGridH();
+        PixelShader  = QuickGridPS();
+    }
+    pass p1
+    {
+        VertexShader = VSQuickGridV();
+        PixelShader  = QuickGridPS();
+    }
+}
+
+technique SphereFadeGrid
+{
+    pass p0
+    {
+        VertexShader = VSSphereFadeGridH(1.0/sphereSize);
+        PixelShader  = SphereFadeGridPS();
+    }
+    pass p1
+    {
+        VertexShader = VSSphereFadeGridV(1.0/sphereSize);
+        PixelShader  = SphereFadeGridPS();
+    }
+}
+
+technique FullPlayerGrid
+{
+    pass p0
+    {
+        VertexShader = VSFullPlayerGrid();
+        PixelShader  = PSFullPlayerGrid();
+    }
+}

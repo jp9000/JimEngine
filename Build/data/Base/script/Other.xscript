@@ -1,0 +1,86 @@
+﻿/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Other.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+enum
+{
+    Color_White             =0xFFFFFFFF, //255,255,255
+    Color_VeryLightGray     =0xFFE0E0E0, //224,224,224
+    Color_LightGray         =0xFFC0C0C0, //192,192,192
+    Color_Gray              =0xFF808080, //128,128,128
+    Color_DarkGray          =0xFF404040, //64,64,64
+    Color_Black             =0xFF000000, //0,0,0      
+                                          
+    Color_Cyan              =0xFF00FFFF, //0,255,255  
+    Color_DarkCyan          =0xFF008080, //0,128,128  
+    Color_Purple            =0xFFFF00FF, //255,0,255  
+    Color_DarkPurple        =0xFF800080, //128,0,128  
+    Color_Yellow            =0xFFFFFF00, //255,255,0  
+    Color_DarkYellow        =0xFF808000, //128,128,0  
+                                          
+    Color_Red               =0xFFFF0000, //255,0,0    
+    Color_DarkRed           =0xFF800000, //128,0,0    
+    Color_Green             =0xFF00FF00, //0,255,0    
+    Color_DarkGreen         =0xFF008000, //0,128,0    
+    Color_Blue              =0xFF0000FF, //0,0,255    
+    Color_DarkBlue          =0xFF000080  //0,0,128    
+};
+
+struct OSTimeInfo
+{
+    int year;
+    int month;
+    int dayOfWeek; //0=sunday(日), 1=monday(月), 2=tuesday(火), 3=wednesday(水), 4=thursday(木), 5=friday(金), 6=saturday(土)
+    int day;
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+};
+
+struct OSFileTime
+{
+    OSTimeInfo timeCreated;
+    OSTimeInfo timeModified;
+};
+
+internal bool operator<(OSTimeInfo time1, OSTimeInfo time2);
+internal bool operator>(OSTimeInfo time1, OSTimeInfo time2);
+internal bool operator==(OSTimeInfo time1, OSTimeInfo time2);
+
+internal bool OSCreateDirectory(string strDirectory);
+internal bool OSFileExists(string strFile);
+internal bool OSGetFileTime(string strFile, out OSFileTime fileTime);
+
+internal bool OSAppHasFocus();
+
+internal void OSSetCursorPos(int x, int y);
+internal void OSGetCursorPos(out int x, out int y);
+internal void OSShowCursor(bool bShow);
+
+struct EnumFileInfo
+{
+    string fileName;
+    bool bDirectory;
+};
+
+internal void EnumResources(out list<EnumFileInfo> fileList, string module, string subdir, string filter="*.*");
+internal void EnumFiles(out list<EnumFileInfo> fileList, string path);
+
+internal string GetPathFileName(string path, bool bExtention=false);
+internal string GetPathDirectory(string path);
+internal string GetPathWithoutExtension(string path);
+internal string GetPathExtension(string path);
+
+//-----------------------------------------------
+
+internal void Log(string strLine);
+
+internal void EnableMemoryTracking(bool bEnable, int id=0);
+
+internal void EndProgram();

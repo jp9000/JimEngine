@@ -1,0 +1,16 @@
+﻿
+
+[Material]
+Friction=0.500000
+Restitution=0.000000
+DrawType=0
+Effect=Base:Bump.effect
+
+[Parameters]
+illuminationColor={1.000, 0.031, 0.031, 1.000}
+specularPower=10
+specularLevel=0
+illuminationMap=Base:default/white.tga
+specularMap=Base:default/white.tga
+normalMap=Base:Default/TEST_bm.dds
+diffuseTexture=Base:Default/TESTWhite.tga

@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li class="test">Music</li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Music Manager (Music.h)</h2>
+
+<p>This class is used for playing music with ogg files.  Yes, I added in all the bug fixes from TNM to this one ^_^</p>
+
+<p>This class is automatically created in Engine::Init() to the global variable MM.</p>
+
+<hr /><!--======================================================================-->
+<h3>MusicManager class functions</h3>
+
+<pre>class BASE_EXPORT MusicManager : public FrameObject</pre>
+<pre>
+BOOL Play(CTSTR lpFileIntro,
+          CTSTR lpFileLoop,
+          float playPos=0.0f,
+          MusicTransition transitionType=MusicTransition_Instant);
+</pre>
+<p>Plays a song with at playPos.  lpFileIntro may be NULL if you don't have an intro.</p>
+<p>transitionType can be one of the following types of this enum:</p>
+<pre class="example">
+enum MusicTransition
+{
+    MusicTransition_Instant,
+    MusicTransition_FastFade,  //1 second
+    MusicTransition_Fade,      //2 seconds
+    MusicTransition_SlowFade   //3 seconds
+};
+</pre>
+
+<pre>void Stop();</pre>
+
+<pre>float GetCurrentPos();</pre>
+
+<pre>
+void SetVolume(float volume);
+inline float GetVolume() const
+</pre>
+
+</div>
+
+</body>
+</html>
+

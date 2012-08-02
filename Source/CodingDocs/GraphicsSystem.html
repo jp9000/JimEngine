@@ -1,0 +1,639 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li class="test">Graphics System</li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Graphics System (GraphicsSystem.h)</h2>
+
+<pre>class BASE_EXPORT GraphicsSystem : public FrameObject</pre>
+
+<p>  This is the wrapper class by which D3D/GL are used.  The wrapper itself is sort of like
+a mix of Direct3D and GL.</p>
+
+<p>  The graphics system is automatically created in Engine::Init(), and the class used to
+create it is determined by the GraphicsSystem value in the [Engine] section of the game
+ini.</p>
+
+<p>  You can access the graphics system at any time by using the global variable GS, although
+there are quite a few inline C-style functions that will also do this if you wish to make
+the code look more clean or something.  Maybe I'm just weird like that.  So usually you
+can call any of the GraphicsSystem functions without doing GS->.</p>
+
+<p>  The view matrix system is handled GL-like through a matrix stack system with the Matrix*
+functions.  The projection matrix is handled seperately but also GL-style.</p>
+
+<p>  Vertex/Index buffers and textures are used similarly to the way DirectX handles them,
+through objects.</p>
+
+<p>  Each graphics system has an independant input system and window list associated with it,
+so in order to access the current input system or window list you must access them through
+the graphics system.</p>
+
+<p>  There are -alot- of functions I probably won't cover here because I either don't
+recommend using them, they're obsolete, or for whatever reason.  If you really want to
+do some advanced stuff just take a look around in the GraphicsSystem.h file.  Or smack me
+upside the head for not writing about them here.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>The VBData struct</h3>
+
+
+<pre>
+typedef List&lt;UVCoord&gt; UVLIST;
+
+
+struct VBData
+{
+    List&lt;Vect&gt;      VertList;
+    List&lt;Vect&gt;      NormalList;
+    List&lt;DWORD&gt;     ColorList;
+    List&lt;Vect&gt;      TangentList;
+    List&lt;UVLIST&gt;    TVList;
+
+    ...
+};
+</pre>
+
+
+<p>  This structure is used when you want to create a vertex buffer.  Example below:</p>
+
+<pre class="example">
+VBData *vbd = new VBData;
+//..fill in vbd here
+VertexBuffer *myVertexBuffer = CreateVertexBuffer(vbd);
+//do not delete vbd after this!  It is automatically handled by the system.  However,
+//textures must free their data after creation (just saying so you don't get confused)
+</pre>
+<p>  The vertex buffer will only use data that you have filled out in your VBData, so if you
+want to create a vertex buffer with no normals/tangents/colors or something like that you
+must leave them empty.  Lists that you do decide to fill out, if not empty, must all be
+the same size.</p>
+
+<p>  TVList is used for storing one or more sets of texture coordinates.  You should not have
+more than 8 sets of texture coordinates in here (I'd be surprised if you were using more
+than one).  It's sort of confusing but I'll show you an example:</p>
+<pre class="example">
+VBData *vbData = new VBData;
+
+vbData.VertList.SetSize(400);
+
+vbData.TVList.SetSize(1);
+vbData.TVList[0].SetSize(400);
+
+//...
+
+VertexBuffer *myVertexBuffer = CreateVertexBuffer(vbData);
+</pre>
+<p>  ..Here you are creating one set of texture coordinates and one set of vertex (positional)
+coordinates.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>VertexBuffer class</h3>
+
+
+<pre>
+class BASE_EXPORT VertexBuffer : public Object
+{
+    CLASS_DECLARE(VertexBuffer, Object);
+
+public:
+    virtual void  CopyFrom(VertexBuffer *buffer)=0;
+    virtual void  FlushBuffers()=0;
+    virtual VBData* GetData()=0;
+};
+</pre>
+
+
+<p>  This is the standard vertex buffer.  You can get the current data the vertex buffer is
+using with GetData, and when you've modified that data you can call FlushBuffers to update
+the vertex buffer.</p>
+
+<p>  CopyFrom copies data from another vertex buffer.  You should never need to call it.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>IndexBuffer class</h3>
+
+
+
+<pre>
+class BASE_EXPORT IndexBuffer : public Object
+{
+    CLASS_DECLARE(IndexBuffer, Object);
+
+public:
+    virtual void  CopyFrom(IndexBuffer *buffer)=0;
+    virtual void  FlushBuffer()=0;
+    virtual void* GetData()=0;
+};
+</pre>
+
+
+<p>  This is the standard index buffer.  You can get the current data the index buffer is
+using with GetData, and when you've modified that data you can call FlushBuffers to update
+the index buffer.</p>
+
+<p>  CopyFrom copies data from another index buffer.  You should never need to call it.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Texture classes</h3>
+
+
+<pre>
+class BASE_EXPORT BaseTexture : public Object
+class BASE_EXPORT Texture : public BaseTexture
+class BASE_EXPORT Texture3D : public BaseTexture
+class BASE_EXPORT CubeTexture : public BaseTexture
+</pre>
+
+<pre>
+class BASE_EXPORT Texture : public BaseTexture
+{
+    CLASS_DECLARE(Texture, BaseTexture);
+
+public:
+    virtual DWORD Width()=0;
+    virtual DWORD Height()=0;
+    virtual BOOL HasAlpha()=0;
+
+    virtual void* GetImage()=0; //this one only work on dynamic textures.
+
+    virtual void SetImage(void *lpData)=0;
+
+    virtual void RebuildMipMaps()=0;
+};
+</pre>
+
+<pre>
+//side enums
+//GS_POSITIVE_X, GS_NEGATIVE_X, GS_POSITIVE_Y, GS_NEGATIVE_Y, GS_POSITIVE_Z, GS_NEGATIVE_Z
+
+class BASE_EXPORT CubeTexture : public BaseTexture
+{
+    CLASS_DECLARE(CubeTexture, BaseTexture);
+
+public:
+    virtual DWORD Width()=0;
+
+    virtual void* GetImage(int side)=0; //this one only work on dynamic textures
+
+    virtual void SetImage(int side, void *lpData)=0;
+
+    virtual void RebuildMipMaps()=0;
+};
+</pre>
+
+
+<p>  Width() will retrieve the width, Height() retrieves the height, HasAplha()
+returns TRUE or FALSE depending on whether the texture has alpha.</p>
+
+<p>  GetImage allows you to get a buffer for that texture type depending upon
+the texture type (only usable on dynamic textures).</p>
+
+<p>  SetImage allows you to set the texture data.  This function is required to
+set the data on cube textures, though you do not need to call this for
+regular textures.  Be careful with this function, as it can potentially
+slow rendering if you're calling it every frame or something.</p>
+
+<p>  RebuildMipMaps generates mipmaps, and is not needed because it's usually
+handled automatically except in certain circumstances.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Effect class</h3>
+
+<p>  This class is usually used as the backbone for most of the advanced rendering on the scene.
+Through this HLSL shaders are automatically handled, as well as their
+variables, textures, and whatever else.  It functions relatively similar
+to the D3D version.</p>
+
+<p>  Basically all major rendering stuff is handled through this class.</p>
+
+<p>  It will undoubtedly undergo major redesign in the future, so just be aware
+of that fact, I will be redesigning it so that it can change rendering style
+and modes based upon the hardware capabilities.  For now it's just basically
+an .fx file handler that wraps straight to D3D's equivelant functions.</p>
+
+<p>  It's best to create effects using the resource manager.</p>
+
+<p>  Here is a small example of using an effect:</p>
+<pre class="example">
+myEffect->SetTexture(myEffect->GetParameterBySemantic(NULL, TEXT("MyVariable")), myTexture);
+
+myEffect->SetCurrentTechnique(myEffect->GetTechnique(TEXT("MyTechnique")));
+
+DWORD nPasses = myEffect->BeginTechnique();
+for(int i=0; i&amp;lt;nPasses; i++)
+{
+    myEffect-&amp;gt;BeginPass(i);
+
+    //do rendering here
+
+    myEffect-&amp;gt;EndPass();
+}
+myEffect->EndTechnique();
+</pre>
+
+<pre>
+class BASE_EXPORT Effect : public Object
+{
+    CLASS_DECLARE(Effect, Object);
+
+public:
+    virtual HANDLE GetParameter(HANDLE hParentObject, int parameter)=0;
+    virtual HANDLE GetParameterByName(HANDLE hParentObject, CTSTR lpName)=0;
+    virtual HANDLE GetParameterBySemantic(HANDLE hParentObject, CTSTR lpName)=0;
+    virtual void   GetParameterInfo(HANDLE hParameter, EffectParameterInfo &amp;paramInfo)=0;
+    virtual HANDLE GetAnnotation(HANDLE hParentObject, int annotation)=0;
+    virtual HANDLE GetAnnotationByName(HANDLE hParentObject, CTSTR lpName)=0;
+
+    virtual HANDLE GetTechnique(CTSTR lpTechnique)=0;
+    virtual BOOL   UsableTechnique(HANDLE hObject)=0;
+    virtual void   SetCurrentTechnique(HANDLE hObject)=0;
+
+    virtual HANDLE GetPass(HANDLE hTechnique, DWORD i)=0;
+    virtual HANDLE GetPassByName(HANDLE hTechnique, CTSTR lpName)=0;
+
+    virtual DWORD  BeginTechnique()=0;
+    virtual void   EndTechnique()=0;
+
+    virtual void   BeginPass(DWORD i)=0;
+    virtual void   EndPass()=0;
+
+    virtual void   SetBool(HANDLE hObject, BOOL bValue)=0;
+    virtual void   SetFloat(HANDLE hObject, float fValue)=0;
+    virtual void   SetInt(HANDLE hObject, int iValue)=0;
+    virtual void   SetMatrix(HANDLE hObject, float *matrix)=0;
+    virtual void   SetVector(HANDLE hObject, const Vect &amp;value)=0;
+    virtual void   SetVector2(HANDLE hObject, const Vect2 &amp;value)=0;
+    virtual void   SetVector4(HANDLE hObject, const Vect4 &amp;value)=0;
+    virtual void   SetTexture(HANDLE hObject, BaseTexture *texture)=0;
+    virtual void   SetValue(HANDLE hObject, void *val, DWORD dwSize)=0;
+
+    virtual void   GetBool(HANDLE hObject, BOOL &amp;bValue)=0;
+    virtual void   GetFloat(HANDLE hObject, float &amp;fValue)=0;
+    virtual void   GetInt(HANDLE hObject, int &amp;iValue)=0;
+    virtual void   GetMatrix(HANDLE hObject, float *matrix)=0;
+    virtual void   GetVector(HANDLE hObject, Vect &amp;value)=0;
+    virtual void   GetVector2(HANDLE hObject, Vect2 &amp;value)=0;
+    virtual void   GetVector4(HANDLE hObject, Vect4 &amp;value)=0;
+    virtual void   GetString(HANDLE hObject, String &amp;value)=0;
+
+
+    inline HANDLE FindBestTechnique(CTSTR lpTechnique)
+    inline  void   SetColor(HANDLE hObject, const Color4 &amp;value)
+    inline  void   SetColor(HANDLE hObject, DWORD color)
+    inline  void   GetColor(HANDLE hObject, Color4 &amp;value)
+    inline  void   GetColor(HANDLE hObject, DWORD &amp;color)
+    void SetMatrix(HANDLE hObject, const Matrix &amp;mat)
+    void SetMatrixIdentity(HANDLE hObject)
+};
+</pre>
+
+<hr /><!--======================================================================-->
+
+<h3>GraphicsSystem Vertex/Index buffer functions</h3>
+
+
+<pre>
+virtual VertexBuffer* CreateVertexBuffer(VBData *vbData, BOOL bStatic=TRUE)=0;
+virtual VertexBuffer* CloneVertexBuffer(VertexBuffer *vb, BOOL bStatic=TRUE)=0;
+</pre>
+<p>  Creates or clones a vertex buffer.  To create a vertex buffer, one must first create a
+VBData object, which contains all the relevant vertex data for the vertex buffer.  When
+you use this function, vbData will automatically be freed by the system so do not free
+it.</p>
+
+<p>  Right now you should never need to change the second to FALSE, even if you're updating
+your vertex buffer each frame.</p>
+
+
+<pre>
+virtual IndexBuffer* CreateIndexBuffer(int IndexType, void *indices, DWORD dwNum, BOOL bStatic=TRUE)=0;
+virtual IndexBuffer* CloneIndexBuffer(IndexBuffer *ib, BOOL bStatic=TRUE)=0;
+</pre>
+<p>  Creates or clones an index buffer.</p>
+
+<p>  IndexType can be either GS_UNSIGNED_SHORT or GS_UNSIGNED_LONG.  The indicies parameter
+will then either point to an unsigned short or unsigned long array of dwNum elements.</p>
+
+<p>  Like with index buffers, the system will automatically free the indices so do not free
+it yourself after sending it into this function, nor should you ever set bStatic to FALSE
+unless you know what you're doing.</p>
+
+
+<pre>
+virtual void  LoadVertexBuffer(VertexBuffer* vb)=0;
+virtual void  LoadIndexBuffer(IndexBuffer *ib)=0;
+</pre>
+<p>  You use these functions to load/unload vertex/index buffers.  After drawing you should
+call the function with NULL to unload a vertex/index buffer so it won't accidently be used
+by other draw code down the pipeline.</p>
+
+<p>  If you have your vertex buffer sorted in a certain draw order you can leave the current
+index buffer as NULL (unloaded), and then upon calling Draw you can draw the current
+vertex buffer without an index buffer.  It will draw however many vertexes are in your
+vertex buffer.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>GraphicsSystem Texture functions</h3>
+
+
+<pre>
+virtual Texture*        CreateTextureFromFile(CTSTR lpFile, BOOL bTile, BOOL bBuildMipMaps)=0;
+virtual CubeTexture*    CreateCubeTextureFromFile(CTSTR lpFile, BOOL bBuildMipMaps)=0;
+virtual Texture3D*      Create3DTextureFromFile(CTSTR lpFile, BOOL bTile, BOOL bBuildMipMaps)=0;
+
+virtual Texture*        CreateTexture(unsigned int width, unsigned int height, DWORD dwColorFormat,
+                                      void *lpData, BOOL bTile, BOOL bBuildMipMaps, BOOL bStatic)=0;
+
+virtual Texture3D*      Create3DTexture(unsigned int width, unsigned int height, unsigned int depth,
+                                        DWORD dwColorFormat, void *lpData, BOOL bTile,
+                                        BOOL bBuildMipMaps)=0;
+
+virtual CubeTexture*    CreateCubeTexture(unsigned int width, DWORD dwColorFormat,
+                                          BOOL bBuildMipMaps, BOOL bStatic)=0;
+</pre>
+<p>  These functions are for creating textures of various sorts.  You typically don't want to
+call these functions directly, it's best to use the resource manager functions to handle
+loading/unloading of textures.  Unlike vertex/index buffers the data sent to these
+functions must be freed after being sent.</p>
+
+
+<pre>
+virtual Texture*        CreateFrameBuffer(unsigned int width, unsigned int height,
+                                          DWORD dwColorFormat, BOOL bGenMipMaps)=0;
+
+virtual CubeTexture*    CreateCubeFrameBuffer(unsigned int width, DWORD dwColorFormat,
+                                              BOOL bGenMipMaps)=0;
+</pre>
+<p>  These functions are for creating textures that can be used as render targets.  Frame
+buffer texture act like normal textures but can be rendered to on the pipeline.  Very
+useful for drawing the scene onto textures for whatever reason.  Fun for the whole
+family!  (and maybe even the family pet)</p>
+
+
+<pre>
+virtual void  LoadTexture(BaseTexture *texture, int idTexture=0)=0;
+</pre>
+<p>  Use this function to set the current texture for the specified texture unit before
+drawing.  Not necessary to call this function if you're using effects because effects
+have their own way of handling textures.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>GraphicsSystem Drawing-mode functions</h3>
+
+<p>  These are relatively self explanatory, very GL-like so I'll just post the functions
+and assume that you have graphics knowledge to use them if you need to.</p>
+
+
+<pre>
+//culling enums
+//GS_BACK, GS_FRONT, GS_NEITHER
+
+virtual void  ReverseCullMode(BOOL bReverse)=0;
+virtual void  SetCullMode(DWORD side)=0;
+virtual DWORD GetCullMode();
+</pre>
+
+<pre>
+//blend enums
+//GS_BLEND_ZERO, GS_BLEND_ONE, GS_BLEND_SRCCOLOR, GS_BLEND_INVSRCCOLOR,
+//GS_BLEND_SRCALPHA, GS_BLEND_INVSRCALPHA, GS_BLEND_DSTCOLOR,
+//GS_BLEND_INVDSTCOLOR, GS_BLEND_DSTALPHA, GS_BLEND_INVDSTALPHA, GS_BLEND_SRCALPHASAT
+
+virtual void  EnableBlending(BOOL bEnable)=0;
+virtual void  BlendFunction(DWORD srcFactor, DWORD destFactor)=0;
+</pre>
+
+
+<pre>
+//depth/stencil testing enums
+//GS_NEVER, GS_LESS, GS_LEQUAL, GS_EQUAL, GS_GEQUAL, GS_GREATER, GS_NOTEQUAL, GS_ALWAYS
+
+virtual void  ClearDepthBuffer(BOOL bFullClear)=0;
+virtual void  EnableDepthTest(BOOL bEnable)=0;
+virtual void  DepthWriteEnable(BOOL bEnable)=0;
+virtual void  DepthFunction(DWORD function)=0;
+inline  DWORD GetDepthFunction()
+
+virtual void  StencilWriteEnable(BOOL bEnable)=0;
+virtual void  StencilFunction(DWORD function)=0;
+virtual void  StencilFunctionCCW(DWORD function)=0;
+virtual void  StencilOp(DWORD fail, DWORD zfail, DWORD zpass)=0;
+virtual void  StencilOpCCW(DWORD fail, DWORD zfail, DWORD zpass)=0;
+virtual void  GetStencilOp(DWORD *pFail, DWORD *pZfail, DWORD *pZpass)=0;
+virtual void  ClearStencilBuffer(BOOL bFill)=0;
+virtual void  EnableStencilTest(BOOL bEnable)=0;
+virtual void  EnableTwoSidedStencil(BOOL bEnable)=0;
+</pre>
+
+
+<pre>
+virtual void  ColorWriteEnable(BOOL bRedEnable, BOOL bGreenEnable, BOOL bBlueEnable, BOOL bAlphaEnable)=0;
+virtual void  ClearColorBuffer(BOOL bFullClear=TRUE, DWORD color=0xFF000000)=0;
+</pre>
+<p>  Setting bFullClear to FALSE will only clear the current viewport.  Otherwise clears the entire buffer.</p>
+
+
+<pre>
+virtual void  EnableClipPlane(BOOL bEnable)=0;
+virtual void  SetClipPlane(const Plane &amp;plane)=0;
+</pre>
+
+
+<pre>virtual void  SetPointSize(float size)=0;  //for when you're drawing with GS_POINTS</pre>
+
+<hr /><!--======================================================================-->
+
+<h3>GraphicsSystem View Matrix functions</h3>
+
+<p>  Again, pretty much implemented to be GL-like in design.</p>
+
+
+<pre>
+void  MatrixPush();
+void  MatrixPop();
+void  MatrixSet(const Matrix &amp;m);
+void  MatrixMultiply(const Matrix &amp;m);
+void  MatrixRotate(float x, float y, float z, float a);  //axis angle
+void  MatrixRotate(const AxisAngle &amp;aa);
+void  MatrixRotate(const Quat &amp;q);
+void  MatrixTranslate(float x, float y, float z);
+void  MatrixTranslate(const Vect &amp;pos);
+void  MatrixTranslate(const Vect2 &amp;pos2);
+void  MatrixScale(const Vect &amp;scale);
+void  MatrixScale(float x, float y, float z);
+void  MatrixTranspose();
+void  MatrixInverse();
+void  MatrixIdentity();
+
+void  MatrixGet(Vect &amp;v, Quat &amp;q);
+void  MatrixGet(Matrix &amp;m);
+</pre>
+<hr /><!--======================================================================-->
+
+<h3>GraphicsSystem Projection Matrix functions</h3>
+
+
+<pre>void  Set2DMode();</pre>
+<p>Sets up a default 2D ortho mode according to window size</p>
+
+<pre>void  Set3DMode(double fovy=60.0, double znear=4.0, double zfar=4096.0);</pre>
+<p>Sets up default 3D proj. mode with field of view and automatically calculates aspect</p>
+
+<pre>
+void  Perspective(double fovy, double aspect, double znear, double zfar);
+virtual void  Ortho(double left, double right, double top, double bottom, double znear, double zfar)=0;
+virtual void  Frustum(double left, double right, double top, double bottom, double znear, double zfar)=0;
+</pre>
+
+<pre>virtual void  AdjustZ(double zfar=4096.0)=0;</pre>
+<p>Adjust zfar on the current projection matrix</p>
+
+<hr /><!--======================================================================-->
+
+<h3>GraphicsSystem rendering functions</h3>
+
+
+
+<pre>virtual void  SetFrameBufferTarget(BaseTexture *texture, DWORD side=0)=0;</pre>
+
+<p>  Sets the frame buffer texture you wish to render to.  Can only be used with textures
+created from either CreateFrameBuffer or CreateCubeFrameBuffer.  If the target is not
+a cube side is ignored.</p>
+
+
+<pre>
+//drawing type enums
+//GS_POINTS, GS_LINES, GS_LINESTRIP, GS_TRIANGLES, GS_TRIANGLESTRIP, GS_TRIANGLEFAN
+
+virtual void  Draw(int DrawMode, int vertexOffset=0, DWORD StartVert=0, DWORD nVerts=0)=0;
+virtual void  DrawBare(int DrawMode, int vertexOffset=0, DWORD StartVert=0, DWORD nVerts=0)=0;
+</pre>
+<p>  vertexOffset sets where the vertex buffer should be start, StartVert is more the index
+offset, which is then relative to vertexOffset.  nVerts is the number of verts to draw
+with that information.  Setting nVerts to zero will draw all remaining verts in the
+index/vertex buffer.</p>
+
+<p>  DrawBare is an optimized version of the function for drawing nothing but
+untextured/uncolored solid primitives.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>GraphicsSystem OpenGL-Style manual rendering functions</h3>
+
+
+<pre>void  RenderStart();</pre>
+<p>will create a brand new vertex buffer, be careful, will be slow.  Can be used with RenderSave() as well</p>
+
+<pre>void  RenderStartFast();</pre>
+<p>uses a default vertex buffer that can store up to 512 vertices to prevent any GPU stalls</p>
+
+<pre>void  RenderStop(DWORD dwDrawType);</pre>
+<p>Renders with the specified draw type.  See "drawing type enums" above.</p>
+
+<pre>VertexBuffer* RenderSave();</pre>
+<p>saves your vertex data to a vertex buffer instead of rendering</p>
+
+<pre>
+void  Vertex(float x, float y, float z=0);
+void  Vertex(const Vect &amp;v);
+void  Vertex(const Vect2 &amp;v2);
+void  Normal(float x, float y, float z);
+void  Normal(const Vect &amp;v);
+void  Color(DWORD dwRGBA);
+void  Color(const Color4 &amp;v);
+void  TexCoord(float u, float v, int idTexture=0);
+void  TexCoord(const UVCoord &amp;uv, int idTexture=0);
+</pre>
+<hr /><!--======================================================================-->
+
+<h3>GraphicsSystem Resolution/Display functions</h3>
+
+
+<pre>
+inline Vect2 GetSize() const
+inline void  GetSize(Vect2 &amp;v2) const
+inline void  GetSize(float &amp;x, float &amp;y) const
+inline void  GetSize(int &amp;x, int &amp;y) const
+
+inline int   GetSizeX() const
+inline int   GetSizeY() const
+inline float GetSizeXF() const
+inline float GetSizeYF() const
+</pre>
+<p>  These functions get the current size of the graphics system.  A bit..  weird I
+admit.  I probably don't need half of these functions.  But I love not making
+sense.  LETS NOT MAKE SENSE TOGETHER.</p>
+
+<p>  There's a SetSize function as well but that's used more internally in certain
+circumstances, don't use that.  Use SetResolution instead.</p>
+
+
+<pre>
+virtual BOOL  ToggleFullScreen();
+virtual BOOL  SetResolution(DISPLAYMODE &amp;dm, BOOL bCenter=FALSE);
+virtual void  EnumDisplayInfo(List&amp;lt;DISPLAYMODE&amp;gt; &amp;DisplayModes);
+
+Vect2 Convert640x480(float x, float y);
+</pre>
+<p>  Top three are relatively self-explanatory.  I would recommend only using
+SetResolution with a value that came from EnumDisplayInfo.  bCenter will center
+the window if set to TRUE.</p>
+<p>  Convert640x480 takes in 640x480 coordinates and outputs converted coordinates
+relative to the current resolution.  Nifty if you don't want to have to handle
+processing your coordinates for every resolution.</p>
+
+</div>
+
+</body>
+</html>
+

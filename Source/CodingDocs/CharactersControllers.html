@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li class="test">Characters/Controllers</li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Characters and Controllers (Character.h)</h2>
+
+<p>The Character class is the primary Entity class in which enemies, players, NPS, and such are manipulated by using a Controller.
+A character class is not inherently controlled by a player or the PC.  That value is set by using a specific controller with
+each character in the game.  This allows you to control which characters can or can't be controllable by the system or player at any given time.</p>
+
+<hr /><!--======================================================================-->
+<h3>Controller class functions</h3>
+
+<pre>class BASE_EXPORT Controller : public FrameObject</pre>
+
+<pre>
+inline int NumCharacters() const
+inline Character* GetCharacter(int id) const
+</pre>
+<p>Gets a character from the list of characters that are assigned to this controller.</p>
+
+<hr /><!--======================================================================-->
+<h3>Controller implementable functions</h3>
+
+<pre>
+virtual void GotControl()       {}
+virtual void LosingControl()    {}
+</pre>
+<p>These two functions are called when your controller is assigned to or unassigned from a character</p>
+
+<hr /><!--======================================================================-->
+<h3>Character class functions</h3>
+
+<pre>class BASE_EXPORT Character : public AnimatedEntity</pre>
+
+<pre>
+inline Controller* GetController() const
+Controller* SetController(Controller* controllerIn)
+</pre>
+<p>Gets or sets the current controller assigned to this character.</p>
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,34 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Material.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal class Material : Object
+{
+    internal bool LoadFromFile(string file);
+
+    internal void SetCurrentEffect(Effect effectIn);
+    internal Effect GetCurrentEffect();
+
+    internal void SetFloat(string paramName, float fValue);
+    internal void SetColor(string paramName, icolor color);
+    internal void SetCurrentTexture(string paramName, BaseTexture texture);
+
+    internal float GetFloat(string paramName);
+    internal icolor GetColor(string paramName);
+    internal BaseTexture GetCurrentTexture(string paramName);
+
+    internal int GetParamID(string paramName);
+
+    internal void SetFloat(int param, float fValue);
+    internal void SetColor(int param, icolor color);
+    internal void SetCurrentTexture(int param, BaseTexture texture);
+
+    internal float GetFloat(int param);
+    internal icolor GetColor(int param);
+    internal BaseTexture GetCurrentTexture(int param);
+};

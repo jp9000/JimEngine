@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li class="test">Game Module</li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>GameModule class (GameModule.h)</h2>
+
+<p>This class is used as the entry point for the game inside a game module.  For the main game module, it must be derived from
+this class and named MainGameModule.</p>
+
+<p>Then to load your module, you would use the game ini file and set the GameModule value in [Engine] to the name of your game module.
+So for example if I had a game module called "Hyperion.xxt", I would use "GameModule=Hyperion" in the [Engine] section, and then
+when the game loads it would automatically create and call the functions of the MainGameModule class within that module.</p>
+
+<hr /><!--======================================================================-->
+<h3>GameModule implementable functions</h3>
+
+<pre>class BASE_EXPORT GameModule : public Object</pre>
+
+<pre>virtual BOOL GameStartup(TSTR lpParameters, int numParameters)=0;</pre>
+<p>GameStartup is called after the engine is initialized, right before the main engine loop begins.</p>
+<p>lpParameters contains the parameters used when the application started.  numParameters specifies the number of parameters.</p>
+<p>Typically this is where you create things like your main menu and such when the game starts up.</p>
+
+<pre>virtual void GameExit()=0;</pre>
+<p>GameExit is called right after the main engine loop exits, and right before the main termination of all engine objects.</p>
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,362 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Math.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+#define M_PI            3.1415926535897932f
+#define LARGE_EPSILON   1e-2f
+#define EPSILON         1e-4f
+#define TINY_EPSILON    1e-5f
+#define M_INFINITE      3.4e38f
+
+
+struct Vect2
+{
+    float x, y;
+
+    Vect2(float f)              {x = y = f;}
+    Vect2(float x, float y)     {this.x = x; this.y = y;}
+
+    internal Vect2 operator+(Vect2 v);
+    internal Vect2 operator-(Vect2 v);
+    internal Vect2 operator/(Vect2 v);
+    internal Vect2 operator*(Vect2 v);
+
+    internal Vect2 operator+(float f);
+    internal Vect2 operator-(float f);
+    internal Vect2 operator/(float f);
+    internal Vect2 operator*(float f);
+
+    internal Vect2 operator-();
+
+    internal int   operator==(Vect2 v);
+    internal int   operator!=(Vect2 v);
+
+    internal Vect2 Set(float x, float y);
+
+    internal Vect2 Norm();
+    internal Vect2 GetNorm();
+
+    internal float Len();
+    internal float Dist(Vect2 v);
+};
+
+struct align128 Vect
+{
+    float x, y, z;
+
+    Vect(float f)                   {x = y = z = f;}
+    Vect(float x, float y, float z) {this.x = x; this.y = y; this.z = z;}
+
+    internal Vect operator+(Vect v);
+    internal Vect operator-(Vect v);
+    internal Vect operator/(Vect v);
+    internal Vect operator*(Vect v);
+
+    internal Vect operator+(float f);
+    internal Vect operator-(float f);
+    internal Vect operator/(float f);
+    internal Vect operator*(float f);
+
+    internal Vect operator-();
+
+    internal int  operator==(Vect v);
+    internal int  operator!=(Vect v);
+
+    internal float Dot(Vect v);
+    internal Vect  Cross(Vect v);
+
+    internal Vect  Set(float a, float b, float c);
+
+    internal bool  CloseTo(Vect v, float epsilon=0.001);
+
+    internal float DistFromPlane(Plane p);
+
+    internal Vect  ClampMin(float f);
+    internal Vect  ClampMin(Vect v);
+
+    internal Vect  ClampMax(float f);
+    internal Vect  ClampMax(Vect v);
+
+    internal float Len();
+    internal float Dist(Vect v);
+
+    internal Vect  Norm();
+    internal Vect  GetNorm();
+
+    internal Vect  Abs();
+    internal Vect  GetAbs();
+
+    internal Vect  SetZero();
+
+    internal Vect  TransformPoint(Matrix m);
+    internal Vect  TransformVector(Matrix m);
+
+    internal Vect  GetTransformedPoint(Matrix m);
+    internal Vect  GetTransformedVector(Matrix m);
+
+    internal Vect  MakeFromRGB(icolor colorVal);
+    internal icolor GetRGB();
+
+    static internal Vect Min(Vect v, float f);
+    static internal Vect Min(Vect v1, Vect v2);
+
+    static internal Vect Max(Vect v, float f);
+    static internal Vect Max(Vect v1, Vect v2);
+
+    static internal Vect Zero();
+};
+
+struct align128 Vect4
+{
+    float x, y, z, w;
+
+    Vect4(float x, float y, float z, float w)   {this.x = x; this.y = y; this.z = z; this.w = w;}
+    Vect4(Vect v, float w)                      {x = v.x; y = v.y; z = v.z; this.w = w;}
+
+    internal Vect4 operator+(Vect4 v2);
+    internal Vect4 operator-(Vect4 v2);
+    internal Vect4 operator/(Vect4 v2);
+    internal Vect4 operator*(Vect4 v2);
+
+    internal Vect4 operator+(float f);
+    internal Vect4 operator-(float f);
+    internal Vect4 operator/(float f);
+    internal Vect4 operator*(float f);
+
+    internal int   operator==(Vect4 v2);
+    internal int   operator!=(Vect4 v2);
+
+    internal bool  CloseTo(Vect4 v, float epsilon=0.001);
+
+    internal Vect4 Abs();
+    internal Vect4 GetAbs();
+
+    internal Vect4 NormXYZ();
+    internal Vect4 GetNormXYZ();
+
+    internal Vect4 NormFull();
+    internal Vect4 GetNormFull();
+
+    internal Vect4 DesaturateColor();
+    internal Vect4 ClampColor();
+    internal Vect4 GetDesaturatedColor();
+    internal Vect4 GetClampedColor();
+
+    internal Vect4 MakeFromRGBA(icolor colorVal);
+    internal icolor GetRGBA();
+
+    internal Vect4 SetZero();
+    static internal Vect4 Zero();
+
+    internal Vect4 Set(float x, float y, float z, float w);
+};
+
+#define Color3 Vect
+#define Color4 Vect4
+
+
+
+struct align128 Quat
+{
+    float x, y, z, w;
+
+    Quat(AxisAngle aa)  {MakeFromAxisAngle(aa);}
+
+    internal Quat  operator*(Quat v2);
+    internal Quat  operator*(AxisAngle aa);
+    internal Quat  operator-();
+
+    internal Quat  operator=(AxisAngle aa);
+
+    internal Quat  SetIdentity();
+    static internal Quat Identity();
+
+    internal Quat  Inv();
+    internal Quat  GetInv();
+
+    internal Quat  Reverse();
+    internal Quat  GetReverse();
+
+    internal Quat  Norm();
+    internal Quat  GetNorm();
+
+    internal float Len();
+    internal float Dist(Quat q);
+
+    internal Quat  MakeFromDirection(Vect dir);
+    internal Quat  SetLookDirection(Vect dir);
+    static internal Quat GetLookDirection(Vect dir);
+
+    internal bool  CloseTo(Quat q, float epsilon=0.001);
+
+    internal Vect  GetDirectionVector();
+
+    internal Quat  GetInterpolationTangent(Quat prev, Quat next);
+
+    internal Quat  CreateFromMatrix(Matrix m);
+    internal Quat  MakeFromAxisAngle(AxisAngle aa);
+    internal AxisAngle GetAxisAngle();
+};
+
+struct align128 AxisAngle
+{
+    float x, y, z, w;
+
+    AxisAngle(Quat q)                                   {MakeFromQuat(q);}
+    AxisAngle(float x, float y, float z, float angle)   {this.x = x; this.y = y; this.z = z; w = angle;}
+    AxisAngle(Vect v, float angle)                      {x = v.x; y = v.y; z = v.z; this.w = angle;}
+
+    internal AxisAngle operator=(Quat v2);
+
+    internal bool CloseTo(AxisAngle aa2, float epsilon=0.001);
+
+    internal AxisAngle Set(float x, float y, float z, float a);
+    internal AxisAngle Clear();
+
+    internal AxisAngle MakeFromQuat(Quat q);
+    internal Quat GetQuat();
+};
+
+struct Bounds
+{
+    Vect Min, Max;
+
+    Bounds(Vect min, Vect max)  {Min = min; Max = max;}
+
+    internal Vect GetPoint(int i);
+
+    internal Bounds GetTransformedBounds(Matrix m);
+    internal Bounds Transform(Matrix m);
+
+    internal Vect   GetCenter();
+    internal bool   Intersects(Bounds test, float epsilon=0.001);
+
+    internal bool   PointInside(Vect point);
+    internal float  GetDiamater();
+    internal bool   RayIntersection(Vect rayOrig, Vect rayDir, out float fT);
+    internal bool   LineIntersection(Vect v1, Vect v2, out float fT);
+
+    internal bool   RayIntersects(Vect rayOrig, Vect rayDir);
+    internal bool   LineIntersects(Vect v1, Vect v2);
+
+    internal int    PlaneTest(Plane p);
+};
+
+struct Plane
+{
+    Vect Dir;
+    float Dist;
+
+    Plane(Vect dir, float dist)                     {Dir = dir; Dist = dist;}
+    Plane(float x, float y, float z, float dist)    {Dir.Set(x, y, z); Dist = dist;}
+
+    internal Plane Transform(Matrix m);
+    internal Plane GetTransform(Matrix m);
+
+    internal bool GetRayIntersection(Vect rayOrigin, Vect rayDir, out float fT);
+    internal bool GetIntersection(Vect p1, Vect p2, out float fT);
+};
+
+struct Matrix
+{
+    Vect X, Y, Z, T;
+
+    Matrix(Vect X, Vect Y, Vect Z, Vect T)  {this.X = X; this.Y = Y; this.Z = Z; this.T = T;}
+
+    Matrix( float Xx, float Xy, float Xz,
+            float Yx, float Yy, float Yz,
+            float Zx, float Zy, float Zz,
+            float Ox, float Oy, float Oz)
+    {
+        X.Set(Xx, Xy, Xz);
+        Y.Set(Yx, Yy, Yz);
+        Z.Set(Zx, Zy, Zz);
+        T.Set(Ox, Oy, Oz);
+    }
+
+    internal Matrix operator=(Quat v);
+
+    internal Matrix operator*(Matrix m);
+    internal Matrix operator*(Vect v);
+    internal Matrix operator*(Quat v);
+    internal Matrix operator*(AxisAngle v);
+
+    internal Matrix SetIdentity();
+    static internal Matrix Identity();
+
+    internal Matrix Translate(Vect v);
+    internal Matrix Rotate(Quat v);
+    internal Matrix Rotate(AxisAngle v);
+    internal Matrix Transpose();
+    internal Matrix GetTranspose();
+};
+
+//-----------------------------------------------
+
+internal float DEG(float fRadians);
+internal float RAD(float fDegrees);
+
+internal float acos(float f);
+internal float asin(float f);
+internal float atan(float f);
+internal float atan2(float f1, float f2);
+
+internal float cos(float f);
+internal float sin(float f);
+internal float tan(float f);
+internal float tanh(float f);
+
+internal float atof(string strFloat);
+internal int   atoi(string strInt);
+
+internal bool  finite(float f);
+
+internal float fabs(float f);
+
+internal float floor(float f);
+internal float ceil(float f);
+
+internal float fmod(float f1, float f2);
+
+internal float MIN(float f1, float f2);
+internal float MAX(float f1, float f2);
+
+internal int   MIN(int i1, int i2);
+internal int   MAX(int i1, int i2);
+
+internal float pow(float f, float f2);
+
+internal int   rand(int maxint=0);
+
+internal float sqrt(float f);
+
+internal bool  CloseFloat(float f1, float f2, float epsilon=0.001);
+
+internal string FloatString(float f);
+internal string FormattedFloat(string format, float f);
+internal string IntString(int i, int radix=10);
+internal string UIntString(int ui, int radix=10);
+
+//-----------------------------------------------
+
+internal Vect LerpFloat(float f1, float f2, float t);
+internal Vect LerpVect2(Vect2 v1, Vect2 v2, float t);
+internal Vect LerpVect(Vect v1, Vect v2, float t);
+
+internal Quat InterpolateQuat(Quat from, Quat to, float t);
+internal Quat CubicInterpolateQuat(Quat from, Quat to, Quat qTan1, Quat qTan2, float t);
+
+internal float RandomFloat(bool bPositiveOnly=false);
+internal Vect  RandomVect(bool bPositiveOnly=false);
+
+internal Vect GetHSpline(Vect from, Vect to, Vect vTan1, Vect vTan2, float fT);
+
+internal bool SphereRayCollision(Vect sphereCenter, float sphereRadius, Vect rayOrig, Vect rayDir, out Vect collision, out Plane collisionPlane);
+internal bool CylinderRayCollision(Vect cylCenter, float cylRadius, float cylHeight, Vect rayOrig, Vect rayDir, out Vect collision, out Plane collisionPlane);
+
+internal void CalcTorque(out float val1, float val2, float torque, float minAdjust, float fT);
+internal void CalcTorque(out Vect val1, Vect val2, float torque, float minAdjust, float fT);

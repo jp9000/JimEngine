@@ -1,0 +1,190 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  BasicControls.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal class Button : ControlWindow
+{
+    bool bDisabled;
+    Sound upSound, downSound, overSound;
+};
+
+internal class TextureButton : Button
+{
+    Texture upTex, downTex, overTex, disabledTex;
+
+    TextureButton(int id=0, float x, float y, float sizeX, float sizeY, OffsetType offsetType=Offset_TopLeft, bool bCentered=false, Window parent=null, Texture upTex, Texture downTex, Texture overTex=null, Texture disabledTex=null)
+    {
+        this.id = id;
+        this.upTex = upTex;
+        this.downTex = downTex;
+        this.overTex = overTex;
+        this.disabledTex = disabledTex;
+
+        SetOffsetType(offsetType);
+        SetSize(sizeX, sizeY);
+        SetPosOffset(x, y, bCentered);
+        if(parent) Attach(parent);
+    }
+};
+
+internal class PushButton : Button
+{
+    string strText, strFont;
+    icolor fontColor, bgColor;
+
+    PushButton(int id=0, float x, float y, float sizeX, float sizeY, OffsetType offsetType=Offset_TopLeft, bool bCentered=false, Window parent=null, string strText, string strFont, icolor fontColor, icolor bgColor)
+    {
+        this.id = id;
+        this.strText = strText;
+        this.strFont = strFont;
+        this.fontColor = fontColor;
+        this.bgColor = bgColor;
+
+        SetOffsetType(offsetType);
+        SetSize(sizeX, sizeY);
+        SetPosOffset(x, y, bCentered);
+        if(parent) Attach(parent);
+    }
+};
+
+internal class CheckBox : ControlWindow
+{
+    string strText, strFont;
+    icolor fontColor, bgColor;
+
+    bool bDisabled;
+    Sound upSound, downSound;
+
+    CheckBox(int id=0, float x, float y, float sizeX, float sizeY, OffsetType offsetType=Offset_TopLeft, bool bCentered=false, Window parent=null, string strText, string strFont, icolor fontColor, icolor bgColor)
+    {
+        this.id = id;
+        this.strText = strText;
+        this.strFont = strFont;
+        this.fontColor = fontColor;
+        this.bgColor = bgColor;
+
+        SetOffsetType(offsetType);
+        SetSize(sizeX, sizeY);
+        SetPosOffset(x, y, bCentered);
+        if(parent) Attach(parent);
+    }
+};
+
+internal class EditBox : ControlWindow
+{
+    string strFont;
+    icolor fontColor;
+    icolor bgColor;
+
+    bool   bMultiline;
+    bool   bPassword;
+    bool   bDisabled;
+
+    string strBuffer;
+    int    maxLength;
+
+    EditBox(int id=0, float x, float y, float sizeX, float sizeY, OffsetType offsetType=Offset_TopLeft, bool bCentered=false, Window parent=null, string strBuffer="", string strFont, icolor fontColor, icolor bgColor)
+    {
+        this.id = id;
+        this.strBuffer = strBuffer;
+        this.strFont = strFont;
+        this.fontColor = fontColor;
+        this.bgColor = bgColor;
+
+        SetOffsetType(offsetType);
+        SetSize(sizeX, sizeY);
+        SetPosOffset(x, y, bCentered);
+        if(parent) Attach(parent);
+    }
+};
+
+internal class ListBox : ControlWindow
+{
+    string strFont;
+    icolor fontColor, bgColor;
+
+    ListBox(int id=0, float x, float y, float sizeX, float sizeY, OffsetType offsetType=Offset_TopLeft, bool bCentered=false, Window parent=null, string strFont, icolor fontColor, icolor bgColor)
+    {
+        this.id = id;
+        this.strFont = strFont;
+        this.fontColor = fontColor;
+        this.bgColor = bgColor;
+
+        SetOffsetType(offsetType);
+        SetSize(sizeX, sizeY);
+        SetPosOffset(x, y, bCentered);
+        if(parent) Attach(parent);
+    }
+
+    internal int AddItem(string name, Object data=null, bool bDestroy=true);
+    internal void InsertItem(int index, string name, Object data=null, bool bDestroy=true);
+    internal void Remove(int index);
+    internal void RemoveItem(string name);
+
+    internal int GetCurSel();
+    internal void SetCurSel(int index);
+
+    internal int NumItems();
+
+    internal string GetItemName(int index);
+    internal Object GetItemData(int index);
+
+    internal int GetItemByName(string name);
+};
+
+internal class SlideInfo : Object
+{
+    bool bEndSlide;
+};
+
+internal class Slider : ControlWindow
+{
+    icolor color;
+
+    float minValue,maxValue,clampValue;
+    bool  bClampNumber;
+
+    Sound moveSound;
+
+    Slider(int id=0, float x, float y, float sizeX, float sizeY, OffsetType offsetType=Offset_TopLeft, bool bCentered=false, Window parent=null, float minValue, float maxValue, float clampValue, bool bClampNumber)
+    {
+        this.id = id;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.clampValue = clampValue;
+        this.bClampNumber = bClampNumber;
+
+        SetOffsetType(offsetType);
+        SetSize(sizeX, sizeY);
+        SetPosOffset(x, y, bCentered);
+        if(parent) Attach(parent);
+    }
+
+    internal float GetValue();
+    internal void  SetValue(float val);
+};
+
+internal class StaticText : ControlWindow
+{
+    OffsetType textOffset;
+    string strText;
+    string strFont;
+    icolor fontColor;
+
+    StaticText(int id=0, float x, float y, float sizeX, float sizeY, OffsetType offsetType=Offset_TopLeft, bool bCentered=false, Window parent=null, string strText, string strFont, icolor fontColor, OffsetType textOffset=Offset_TopLeft)
+    {
+        this.id = id;
+        this.strText = strText;
+        this.fontColor = fontColor;
+        this.textOffset = textOffset;
+
+        SetOffsetType(offsetType);
+        SetSize(sizeX, sizeY);
+        SetPosOffset(x, y, bCentered);
+        if(parent) Attach(parent);
+    }
+};

@@ -1,0 +1,75 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Entity.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal abstract class Entity : FrameObject
+{
+    PhyShape    phyShape;
+    PhyObject   phyObject;
+
+    bool bPositionalOnly; //is not considered "part of the level" and excludes it from level data
+    bool bAlwaysVisible;
+    bool bPlacable;  //not yet used
+
+    static internal Entity FindByClass(string name, Entity prevEnt=null, Entity parent=null);
+    static internal Entity FindByName(string name, Entity parent=null);
+    static internal Entity FindByID(int id, Entity parent=null);
+    static internal void   FindAllByClass(string name, out list<Entity> ents, Entity parent=null);
+
+    internal void SetPos(Vect pos);
+    internal void SetRot(Quat rot);
+
+    internal Vect GetLocalPos();
+    internal Quat GetLocalRot();
+    internal Vect GetWorldPos();
+    internal Quat GetWorldRot();
+
+    internal Matrix GetEntityTransform();
+    internal Matrix GetEntityInvTransform();
+
+    internal void Attach(Entity new_parent);
+    internal void Detach();
+
+    internal int NumChildren();
+    internal Entity GetChild(int child);
+    internal Entity GetParent();
+
+    internal bool GetLineCollision(Vect vStart, Vect vEnd, out PhyCollisionInfo info);
+    internal bool GetRayCollision(Vect vStart, Vect vEnd, out PhyCollisionInfo info, float rayLength=1000.0f);
+    internal bool GetConvexCollision(PhyShape shape, Vect vStart, Vect vEnd, out PhyCollisionInfo info);
+
+    internal string GetName();
+
+    internal Entity DuplicateEntity();
+
+    internal void SetAsSavable(bool bSavable);
+    internal bool IsSavable();
+
+    internal int GetEntityID();
+
+    internal bool SetState(string newState);
+    internal string GetState();
+
+    internal void UpdatePositionalData();
+
+    implementable bool UpdatingPosition() {return false;}
+    implementable void OnUpdatePosition() {}
+
+    implementable Bounds GetBounds()
+    {
+        return Bounds(Vect(-1.0f, -1.0f, -1.0f), Vect(1.0f, 1.0f, 1.0f));
+    }
+
+    implementable bool CanFrob()    {return false;}
+    implementable void OnFrob()     {}
+
+    implementable void OnCollision(Entity collider, Vect hitPos, Vect hitNorm, float impulse) {}
+    
+    implementable bool StateChanged(string newState) {return true;}
+
+    implementable void SerializeGameData(SerializerObject s) {}
+};

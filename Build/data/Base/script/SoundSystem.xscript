@@ -1,0 +1,36 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  SoundSystem.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal abstract class Sound : FrameObject
+{
+    internal void  Play(bool bLoop);
+    internal void  Stop();
+
+    internal void  SetVolume(float vol);
+    internal float GetVolume();
+
+    internal void  SetPosition(Vect pos);
+    internal void  SetVelocity(Vect vel);
+
+    internal void  SetRange(float soundRange);
+    internal float GetRange();
+
+    internal void  SetPitch(float pitchAdjust); //-1.0 to 1.0
+    internal float GetPitch();                  //-1.0 = one octave lower
+                                                // 0.0 = normal pitch
+                                                // 1.0 = one octave higher
+};
+
+internal abstract class SoundSystem : FrameObject
+{
+    internal void SetEffectsVol(float vol);
+    internal float GetEffectsVol();
+};
+
+internal SoundSystem SS();

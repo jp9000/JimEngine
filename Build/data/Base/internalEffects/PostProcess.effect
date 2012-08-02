@@ -1,0 +1,195 @@
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Post Process Stuff
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+//=================================================================
+//  Parameters
+//=================================================================
+
+//------------
+// General
+//------------
+float2 viewportMin;
+float2 viewportMax;
+
+texture2d screenTex;
+
+float aspect = 1.0f;
+
+int sampleSize = 12;
+
+//------------
+// BoxFilter
+//------------
+float spread = 0.04f;
+float power = 4.0f;
+
+//------------
+// StarThingamabob
+//------------
+float  weights[16];
+float2 offsets[16];
+
+//=================================================================
+//  VSBypass
+//=================================================================
+
+SamplerState screenSampler
+{
+    ADDRESSU  = CLAMP;
+    ADDRESSV  = CLAMP;
+    FILTER    = ANISOTROPIC;
+};
+
+//=================================================================
+//  Vertex Input
+//=================================================================
+
+struct Vertex {
+    float4 Position : POSITION;
+    float2 TexCoord : TEXCOORD0;
+};
+
+//=================================================================
+//  VSBypass
+//=================================================================
+
+Vertex VSBypass(Vertex input)
+{
+    input.Position.z = 0.0f;
+    input.Position.w = 1.0f;
+    return input;
+}
+
+//=================================================================
+//  BoxFilterAxis
+//=================================================================
+
+float3 BoxFilterX(float2 viewportMin, float2 viewportMax, float2 curUV, float spreadRadius, int sampleSize)
+{
+    float step = (2.0f*spreadRadius)/sampleSize;
+
+    spreadRadius -= (step*0.5f);
+    curUV -= float2(spreadRadius, 0.0f);
+
+    float3 sum = 0.0f;
+
+    for(int x=0; x<sampleSize; x++)
+    {
+        float stepX = step*x;
+        float2 coord = curUV+float2(stepX, 0.0f);
+        sum += screenTex.Sample(screenSampler, clamp(coord, viewportMin, viewportMax));
+    }
+
+    return sum/sampleSize;
+}
+
+float3 BoxFilterY(float2 viewportMin, float2 viewportMax, float2 curUV, float spreadRadius, int sampleSize)
+{
+    float step = (2.0f*spreadRadius)/sampleSize;
+
+    spreadRadius -= (step*0.5f);
+    curUV -= float2(0.0f, spreadRadius);
+
+    float3 sum = 0.0f;
+
+    for(int y=0; y<sampleSize; y++)
+    {
+        float stepY = step*y;
+        float2 coord = curUV+float2(0.0f, stepY);
+        sum += screenTex.Sample(screenSampler, clamp(coord, viewportMin, viewportMax));
+    }
+
+    return sum/sampleSize;
+}
+
+//=================================================================
+//  StarThingamabopper
+//=================================================================
+
+float3 StarThingamabopper(float2 viewportMin, float2 viewportMax, float2 curUV, int sampleSize)
+{
+    float3 sum = 0.0f;
+
+    for(int i=0; i<sampleSize; i++)
+    {
+        float2 coord = curUV+offsets[i];
+        
+        if( (coord.x > viewportMin.x) && (coord.x < viewportMax.x) &&
+            (coord.y > viewportMin.y) && (coord.y < viewportMax.y) )
+        {
+            sum += weights[i] * screenTex.Sample(screenSampler, coord);
+        }
+    }
+
+    return sum;
+}
+
+//=================================================================
+//  Bloom
+//=================================================================
+
+float4 ReduceGlare(Vertex input) : COLOR
+{
+    float4 color = screenTex.Sample(screenSampler, input.TexCoord);
+
+    color.xyz = saturate(pow(color.xyz, power));
+
+    return color;
+}
+
+float4 BlurX(Vertex input) : COLOR
+{
+    return float4(BoxFilterX(viewportMin, viewportMax, input.TexCoord, spread, sampleSize), 1.0f);
+}
+
+float4 BlurY(Vertex input) : COLOR
+{
+    return float4(BoxFilterY(viewportMin, viewportMax, input.TexCoord, spread*aspect, sampleSize), 1.0f);
+}
+
+float4 StarThingy(Vertex input,
+                  uniform float2 minVal,
+                  uniform float2 maxVal,
+                  uniform int testSampleSize) : COLOR
+{
+    return float4(StarThingamabopper(minVal, maxVal, input.TexCoord, testSampleSize), 1.0f);
+}
+
+
+technique Bloom
+{
+    pass p0
+    {
+        VertexShader = VSBypass();
+        PixelShader  = ReduceGlare();
+    }
+
+    pass p1
+    {
+        VertexShader = VSBypass();
+        PixelShader  = BlurX();
+    }
+
+    pass p2
+    {
+        VertexShader = VSBypass();
+        PixelShader  = BlurY();
+    }
+}
+
+technique Star
+{
+    pass p0
+    {
+        VertexShader = VSBypass();
+        PixelShader  = ReduceGlare();
+    }
+
+    pass p1
+    {
+        VertexShader = VSBypass();
+        PixelShader  = StarThingy(viewportMin-0.02f, viewportMax+0.02f, 16);
+    }
+}

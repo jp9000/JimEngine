@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li class="test">Animated Entities</li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Animated Entities (AnimatedEntity.h)</h2>
+
+<p>This class is used for mesh entities that are animated.</p>
+
+<p>When an animation is played, its animation is combined with any other animations that are currently playing.</p>
+
+<p>There are also "bone extensions" which can be used for placing things that are typically attached to specific bones of an entity, such as guns in the hands and such.</p>
+
+<p>As a note, you can also do some interesting things with animations that you might not have originally thought of.  For example, with my alien mesh animations,
+I included a single "bend" animation with 3 frames.  First frame of this animation has the alien bent downward for looking down,
+second frame was the normal forward-facing stance, and third frame was where he was bent and looking up.  Inside the player character game code, I then add the animation
+as a custom halted animation, and then manually set the position of the frames for that animation depending on how the player is looking up or down.
+This then combined with any other animations and it makes the alien realistically look like he's facing up/down if the player is
+actually looking up/down, with weapons and all.</p>
+
+<hr /><!--======================================================================-->
+<h3>DBone objects</h3>
+<p>These are the deformable bones of which a mesh is animated by.  These are regular entities so you can attach objects to them and such if you choose.
+There are no public variables or functions.</p>
+
+<pre>class BASE_EXPORT DBone : public Entity</pre>
+
+
+<hr /><!--======================================================================-->
+<h3>AnimatedEntity class functions</h3>
+
+<pre>class BASE_EXPORT AnimatedEntity : public MeshEntity</pre>
+
+<pre>
+virtual void PlayAnimation(int id, AnimationType type=ANIM_PLAY_AND_STOP, float speed=1.0f);
+virtual void PlayAnimation(TSTR lpSeqName, AnimationType type=ANIM_PLAY_AND_STOP, float speed=1.0f);
+</pre>
+<p>Adds an animation to the list of currently playing animations.  id/lpSeqName is the sequence number/name, speed specified how fast the animation should play.</p>
+<p>The type parameter can be one of the following values:</p>
+<p class="value">ANIM_PLAY_AND_STOP will play an animation once and stop.</p>
+<p class="value">ANIM_PLAY_AND_HALT will play an animation once and halt, and the animation will be set to the last frame.  This is usually only used for poses which don't actually animate.</p>
+<p class="value">ANIM_LOOP will loop the animation.</p>
+
+<pre>
+virtual void SetAnimationSpeed(int id, float speed);
+virtual void SetAnimationSpeed(TSTR lpSeqName, float speed);
+</pre>
+<p>Sets the speed of a currently playing animation to the specified value.</p>
+
+<pre>
+virtual void StopAnimation(int id);
+virtual void StopAnimation(TSTR lpSeqName);
+</pre>
+<p>Removes an animation from the list of currently playing animations.</p>
+
+<pre>virtual void StopAllAnimation();</pre>
+<p>Stops all animations.</p>
+
+<pre>
+BOOL IsAnimationPlaying(int id);
+BOOL IsAnimationPlaying(TSTR lpSeqName);
+</pre>
+<p>Returns TRUE if an animation is playing, otherwise FALSE.</p>
+
+<pre>inline UINT NumActiveAnimations() const</pre>
+<p>Returns the number of currently playing animations.</p>
+
+<pre>
+inline UINT NumBoneExtensions() const
+inline BoneExtension* GetBoneExtension(UINT i)
+</pre>
+<p>NumBoneExtensions returns the number of available bone extensions, and GetBoneExtension returns a bone extension by ID.</p>
+
+<p>A bone extension is defined by this structure:</p>
+<pre class="example">
+struct BoneExtension
+{
+    DWORD idParent;  //parent bone ID.  Use this with GetBone to attach an object to that bone.
+    Vect  Pos;
+    Quat  Rot;
+};
+</pre>
+
+<pre>
+inline UINT NumBones() const
+inline DBone* GetBone(UINT i)
+</pre>
+<p>NumBones returns the number of bones, and GetBone returns a bone by ID.</p>
+
+<pre>
+inline UINT NumRootBones() const
+inline DBone* GetRootBone(UINT i)
+</pre>
+<p>NumRootBones returns the number of root bones (bones with no parents), and GetRootBone returns a root bone by ID.  This ID is relative to the number of root bones, not the main bone list.</p>
+
+<pre>int GetAnimationID(TSTR lpSeqName);</pre>
+<p>Gets an animation ID for a given animation name.</p>
+
+<pre>void AddCustomAnimation(const Anim&amp; animData);</pre>
+<p>Adds a custom animation with custom animation sequence information.  The Anim strucuter is defined as follows:</p>
+<pre class="example">
+struct Anim
+{
+    unsigned int  idSequence;   //animation id
+    DWORD         EndFrame;     //The very last keyframe in the animation.  Not needed for halted animations.
+    DWORD         curFrame;     //the current keyframe the animation is interpolating from.
+    DWORD         nextFrame;    //The next keyframe the animation is interpolating to.
+    int           totalTime;    //Used internally when playing animations - set it to 0 for custom animations.
+                                //Specifies the total time in milliseconds into the current keyframe.
+
+    DWORD         flags;        //You can use ANIMATION_HALT if you wish in a custom animations for a specific pose.
+    float         fT;           //Current interpolation value for this keyframe.  Between 0.0 to 1.0.
+    float         speed;        //Speed of the animation.  Not needed for halted animations.
+    AnimationType type;         //see PlayAnimation above.  Not needed for halted animations.
+};
+</pre>
+
+<pre>Anim&amp; GetAnimationData(int id);</pre>
+<p>Gets the animation data of a currently playing animation.  It returns a reference pointer so it can be modified directly that way.</p>
+
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,17 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Font.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal class Font : Object
+{
+    internal int  LetterWidth(int letter);
+    internal int  WordWidth(string str);
+    internal int  TextWidth(string str);
+    internal int  GetFontHeight();
+    internal void DrawLetter(int letter, int x, int y, icolor fontColor=0xFFFFFFFF);
+};

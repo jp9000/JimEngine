@@ -1,0 +1,44 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Lights.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal abstract class Light : Entity
+{
+    property bool        bCastShadows <section="Light">;
+    property icolor      color <section="Light">;
+    property int         intensity <type=scroller(1, 500, 1)>  <description="Light brightness, in percentage, 1-400 (truncated to 100 when lightmapping)"> <section="Light">;
+    
+    property bool        bStaticLight <section="Lightmapping/Radiosity"> <description="Indicates whether this light should be used to build lightmaps or not">;
+    property bool        bEnableEmission <section="Lightmapping/Radiosity"> <description="Allow this light to be used with emission lighting.">;
+    property float       lightVolume <section="Lightmapping/Radiosity"> <type=scroller(1.0f, 10.0f, 0.1f)> <description="Sets the light volume size.  Less than 3.0f may cause undesirable results.">;
+
+    internal void SetColor(icolor newColor);
+    internal void SetColor(float newR, float newG, float newB);
+
+    internal void SetEnabled(bool bEnabled=true);
+    internal bool IsEnabled();
+    
+    Bounds GetBounds()
+    {
+        return Bounds(Vect(-0.5f, -0.5f, -0.5f), Vect(0.5f, 0.5f, 0.5f));
+    }
+};
+
+internal class PointLight : Light
+{
+    property float lightRange <type=scroller(0.5, 1000.0f, 1.0f)> <section="Light">;
+};
+
+internal class SpotLight : Light
+{
+    property float lightRange <type=scroller(0.5, 1000.0f, 1.0f)> <section="Light">;
+    property string SpotlightMap <section="Light">;
+    property float cutoff <type=scroller(1, 89, 0.1)> <section="Light">;
+};
+
+internal class DirectionalLight : Light {};

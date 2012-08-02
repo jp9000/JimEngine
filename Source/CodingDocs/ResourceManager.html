@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li class="test">Resource Management</li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2>Resource Manager (ResourceManager.h)</h2>
+
+<p>  The resource manager class is used to automatically handle creation of
+textures/sounds/effects/materials/shaders so that duplicates are not
+created.</p>
+
+<p>  The global object for this is RM, but I will only be listing the C-Style
+inlines to access this.  The resource manager object is automatically
+created in Engine::Init().</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Texture functions</h3>
+
+
+<pre>
+inline Texture* GetTexture(CTSTR lpName, BOOL bTile=1, BOOL bGenMipMaps=1)
+inline Texture* GetTexture2D(CTSTR lpName)
+</pre>
+<p>  lpName points to a texture contained in data\textures or one of its
+subdirectories.  So if you have a texture c:\game\data\textures\chi.jpg
+you would input "chi.jpg" to this function.  (extension must be
+specified because of the varying texture formats)</p>
+
+<p>  If the texture already exists in the reource manager you will get a
+pointer to the existing resource and the reference count on that
+resource will be increased by one.</p>
+
+<p>  GetTexture2D is for UI textures.  It's basically just the same as
+GetTexture(lpName, FALSE, FALSE);</p>
+
+
+<pre>
+inline DWORD ReleaseTexture(BaseTexture *texture)
+inline DWORD ReleaseTexture(CTSTR lpName)
+</pre>
+<p>  ReleaseTexture will decrease the current ref count by 1.  Return value is
+the new reference count.  If the texture ref is 0 then it will free the
+texture.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Material functions</h3>
+
+
+
+<pre>inline Material* GetMaterial(CTSTR lpName)</pre>
+
+<p>  lpName points to a texture contained in data\materials or one of its
+subdirectories.  So if you have a material c:\game\data\materials\chi.mtl
+you would input "chi" to this function.  (no extension for this one)</p>
+
+
+<pre>
+inline DWORD ReleaseMaterial(Material *material)
+inline DWORD ReleaseMaterial(CTSTR lpName)
+</pre>
+<p>  ReleaseMaterial will decrease the current ref count by 1.  Return value is
+the new reference count.  If the material ref is 0 then it will free the
+material.</p>
+
+
+<hr /><!--======================================================================-->
+
+<h3>Effect/Shader functions</h3>
+
+<p>  Effects and shaders are stored a bit differently.  They are simply stored
+until the level changes or is destroyed.</p>
+
+
+<pre>
+inline PixelShader*  GetPixelShader(TSTR lpName)
+inline VertexShader* GetVertexShader(TSTR lpName)
+</pre>
+<p>  I'm marking these as pretty much obsolete as the effect system should
+now be used instead of directly using shaders.</p>
+
+<p>  lpName points to a shader contained in data\shaderSource or one of its
+subdirectories.  So if you have a texture c:\game\data\shaderSource\chi.txt
+you would input "chi" to this function.  (no extension for this one either)</p>
+
+
+
+<pre>inline Effect*       GetEffect(TSTR lpName)</pre>
+
+<p>  lpName points to a effect contained in data\effect or one of its
+subdirectories.  So if you have an effect c:\game\data\effects\chi.fx
+you would input "chi" to this function.  (no extension for this one either)</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Sound functions</h3>
+
+<p>  Sound data is simply the PCM data which is also stored until a level
+changes or is destroyed.  It does not store actual sound objects because
+sound works differently.  The only thing stored is PCM data and new sound
+objects are then created from the stored PCM data.</p>
+
+
+
+<pre>inline Sound* NewSound(TSTR lpName, BOOL b3DSound, BOOL bSelfDestruct=FALSE)</pre>
+
+<p>  lpName points to a sound contained in data\sounds or one of its
+subdirectories.  So if you have a sound c:\game\data\sounds\chi.wav
+you would input "chi.wav" to this function.  (I have it so that sounds
+require extensions as well.  I think I was doing it so I could make it
+decode compressed sound formats if necessary.)</p>
+
+
+</div>
+
+</body>
+</html>
+

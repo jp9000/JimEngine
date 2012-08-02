@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li class="test">Lists</li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Lists (Template.h)</h2>
+
+<p>I implemented my own list template classes, hope no one minds.  Relatively straight-forward to use.</p>
+
+<hr /><!--======================================================================-->
+<h3>List&lt;T&gt; class</h3>
+
+<pre>template&lt;typename T&gt; class List</pre>
+
+
+<pre>
+inline T* Array() const
+inline unsigned int Num() const
+inline unsigned int Add(const T&amp; val)
+</pre>
+
+<pre>unsigned int SafeAdd(const T&amp; val)</pre>
+<p>Adds only if there is no duplicate value</p>
+
+<pre>
+inline void Insert(const T&amp; val, unsigned int index)
+
+inline void Remove(unsigned int index)
+inline void RemoveItem(const T&amp; obj)
+
+inline void CopyArray(const T *new_array, unsigned int n)
+inline void AppendArray(const T *new_array, unsigned int n)
+
+inline void CopyFrom(const List&lt;T&gt;&amp; list)
+inline void AppendList(const List&lt;T&gt;&amp; list)
+
+inline void SetSize(unsigned int n)
+
+inline void RemoveDupes()
+
+inline void FreeAll()
+</pre>
+
+<pre>
+inline T* CreateNew()
+inline T* InsertNew(int index)
+</pre>
+<p>Returns the pointer offset in the list of the new list items.  Despite the misleading name this does not use the new operator or anything,
+the function is simply for returning a pointer to the new item created.</p>
+
+<pre>inline List&lt;T&gt;&amp; operator&lt;&lt;(const T&amp; val)</pre>
+<p>Same essential functionality as Add, though returns the list itself for stacking multiple &lt;&lt; operators.</p>
+
+<pre>
+inline T&amp; GetElement(unsigned int index)
+inline T&amp; operator[](unsigned int index)
+inline T&amp; operator[](unsigned int index) const
+inline T* operator+(unsigned int index)
+
+inline BOOL HasValue(const T&amp; val) const
+inline DWORD FindValueIndex(const T&amp; val) const
+inline DWORD FindNextValueIndex(const T&amp; val, DWORD lastIndex=INVALID) const
+</pre>
+
+<pre>inline T&amp; Last() const</pre>
+<p>Gets the last item in the list.</p>
+
+<pre>friend Serializer&amp; operator&lt;&lt;(Serializer &amp;s, List&lt;T&gt; &amp;list)</pre>
+
+<hr /><!--======================================================================-->
+<h3>SafeList&lt;T&gt; class</h3>
+<p>Index-safe list, unlike with regular lists.  Not really used very often.  Functions pretty much exactly like
+List otherwise</p>
+
+<pre>template&lt;typename T&gt; class SafeList : public List&lt;T&gt;</pre>
+
+<hr /><!--======================================================================-->
+<h3>StringList class (XenString.h)</h3>
+<p>Use this class for safe handling of string lists.</p>
+
+<pre>class BASE_EXPORT StringList : public List&lt;String&gt;</pre>
+
+<pre>
+unsigned int SafeAddI(const String&amp; val)
+inline BOOL HasValueI(const String&amp; val) const
+inline DWORD FindValueIndexI(const String&amp; val) const
+inline DWORD FindNextValueIndexI(const String&amp; val, DWORD lastIndex=INVALID) const
+</pre>
+<p>Includes case-insensitive versions of these functions</p>
+
+</div>
+
+</body>
+</html>
+

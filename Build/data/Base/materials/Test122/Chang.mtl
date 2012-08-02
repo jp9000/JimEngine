@@ -1,0 +1,15 @@
+﻿
+
+[Material]
+DrawType=2
+Effect=Base:Cel.effect
+
+[Parameters]
+celSplits=2
+illuminationColor={0.000, 0.000, 0.000, 1.000}
+specularPower=40
+specularLevel=40
+illuminationMap=Base:default/white.tga
+specularMap=Base:default/white.tga
+normalMap=Base:GrayTex1_bm.tga
+diffuseTexture=Base:GrayTex1.tga

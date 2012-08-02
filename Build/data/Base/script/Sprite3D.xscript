@@ -1,0 +1,18 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Sprite3D.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal class Sprite3D : Entity
+{
+    string  spriteTextureName;
+    icolor  spriteColor;
+    float   spriteSize;
+
+    float   spriteRotation;
+    float   spriteRotationRate;
+};

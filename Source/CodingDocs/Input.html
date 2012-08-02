@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li class="test">Input System</li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Mouse/Keyboard Input (Input.h)</h2>
+
+<pre>class BASE_EXPORT Input : public Object</pre>
+
+<p>  Mouse and keyboard input is handled through mouse and keyboard callback handlers.  These
+handlers are then pushed and popped from an internal stack of handlers for both.  The last
+pushed handler for either the mouse or keyboard will be the one that is called when input
+occurs.</p>
+
+<p>  Typically mouse input is automatically handled by the window system, which makes it
+unnecessary to ever really need to use a mouse handler.</p>
+
+<p>  Keyboard input is different, because different window controls can do different things
+with keyboard input.  So keyboard input is really up for you to decide how to process.</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Keyboard/Mouse input global functions</h3>
+
+
+
+<pre>TSTR XENAPI GetInputCodeName(unsigned int code);</pre>
+
+<p>  Returns the string name of the key/mouse code</p>
+
+
+<pre>
+inline void PushKBHandler(KBPROC lpKBProc, LPVOID lpParam=NULL, BOOL bCharInput=0)
+inline void PushMouseHandler(MOUSEPROC lpMouseProc, LPVOID lpParam=NULL)
+inline void PopKBHandler()
+inline void PopMouseHandler()
+</pre>
+<p>  Pushes/pops a keyboard/mouse handler on to the mouse/keyboard handler stack.  The last
+mouse or keyboard handler that was pushed will be the one that gets input.</p>
+
+<p>  lpParam is whatever pointer or value you choose that will be sent to the handler whenever
+it's called.</p>
+
+<p>  Set bCharInput to TRUE to allow character repeating characters and to receive the actual value of keypresses.
+So you don't want to use the KBC codes in your callback if you're using this.</p>
+
+<p>  Make sure to pop your handler (dear god can the innuendo get any worse?) when you're
+finished.</p>
+
+
+
+<pre>inline BOOL GetButtonState(unsigned int key)</pre>
+
+<p>  Gets the state of a key or mouse button, returns TRUE if pressed, FALSE if not.  Can be used
+with any mouse button or keyboard key, but most of the time it's used with KBC_CONTROL, KBC_ALT,
+and KBC_SHIFT.</p>
+
+<pre>inline BOOL GettingCharacterInput()</pre>
+<p>Returns TRUE if the current keyboard handler is getting user character input rather than key data input</p>
+
+<pre>
+inline void EmulateMouseInput(int action, DWORD buttonStates, LONG param)
+inline void EmulateKBInput(unsigned int kbc, BOOL keydown)
+</pre>
+<p>Emulates mouse or keyboard input into the current mouse/keyboard input handlers.</p>
+
+
+<hr /><!--======================================================================-->
+
+<h3>Keyboard/Mouse callback functions</h3>
+
+
+
+<pre>void XENAPI KBHandlerProc(unsigned int kbc, BOOL bKeydown, LPVOID lpParam)</pre>
+
+<p>  If the handler was created with bUserInput set to FALSE, kbc will be a KBC_* code.  If it was set to TRUE
+kbc will be the actual key pressed.</p>
+<p>  bKeyDown is whether the key is up or down</p>
+<p>  lpParam is the custom parameter to be sent to that callback</p>
+
+
+
+<pre>void XENAPI MouseProc(int action, DWORD buttonStates, LONG value, LPVOID lpParam)</pre>
+
+<p>  buttonStates is the state of all three buttons, one or more of the flags STATE_LBUTTONDOWN/STATE_RBUTTONDOWN/STATE_MBUTTONDOWN</p>
+
+<p>  value depends upon the action:</p>
+<p>if action is MOUSE_LEFTBUTTON, MOUSE_RIGHTBUTTON, or MOUSE_MIDDLEBUTTON, value is TRUE if pressed, FALSE if not</p>
+
+<p>if action is MOUSE_WHEEL,  value is the wheel scroll value</p>
+
+<p>if action is MOUSE_MOVE, value's lower 16bits is the X offset of the mouse, the upper 16bits is the Y offset of the mouse</p>
+
+<hr /><!--======================================================================-->
+
+<h3>Keyboard and mouse codes</h3>
+<pre>
+KBC_ESCAPE
+KBC_1
+KBC_2
+KBC_3
+KBC_4
+KBC_5
+KBC_6
+KBC_7
+KBC_8
+KBC_9
+KBC_0
+KBC_MINUS
+KBC_EQUALS
+KBC_BACK
+KBC_TAB
+KBC_Q
+KBC_W
+KBC_E
+KBC_R
+KBC_T
+KBC_Y
+KBC_U
+KBC_I
+KBC_O
+KBC_P
+KBC_LBRACKET
+KBC_RBRACKET
+KBC_RETURN
+KBC_LCONTROL
+KBC_A
+KBC_S
+KBC_D
+KBC_F
+KBC_G
+KBC_H
+KBC_J
+KBC_K
+KBC_L
+KBC_SEMICOLON
+KBC_APOSTROPHE
+KBC_TILDE
+KBC_LSHIFT
+KBC_BACKSLASH
+KBC_Z
+KBC_X
+KBC_C
+KBC_V
+KBC_B
+KBC_N
+KBC_M
+KBC_COMMA
+KBC_PERIOD
+KBC_SLASH
+KBC_RSHIFT
+KBC_MULTIPLY
+KBC_LALT
+KBC_SPACE
+KBC_CAPSLOCK
+KBC_F1
+KBC_F2
+KBC_F3
+KBC_F4
+KBC_F5
+KBC_F6
+KBC_F7
+KBC_F8
+KBC_F9
+KBC_F10
+KBC_NUMLOCK
+KBC_SCROLLLOCK
+KBC_NUMPAD7
+KBC_NUMPAD8
+KBC_NUMPAD9
+KBC_SUBTRACT
+KBC_NUMPAD4
+KBC_NUMPAD5
+KBC_NUMPAD6
+KBC_ADD
+KBC_NUMPAD1
+KBC_NUMPAD2
+KBC_NUMPAD3
+KBC_NUMPAD0
+KBC_DECIMAL
+KBC_F11
+KBC_F12
+KBC_NUMPADENTER
+KBC_RCONTROL
+KBC_DIVIDE
+KBC_SYSRQ
+KBC_RALT
+KBC_PAUSE
+KBC_HOME
+KBC_UP
+KBC_PAGEDOWN
+KBC_LEFT
+KBC_RIGHT
+KBC_END
+KBC_DOWN
+KBC_PAGEUP
+KBC_INSERT
+KBC_DELETE
+
+KBC_CONTROL
+KBC_ALT
+KBC_SHIFT
+
+MOUSE_LEFTBUTTON
+MOUSE_MIDDLEBUTTON
+MOUSE_RIGHTBUTTON
+</pre>
+
+</div>
+
+</body>
+</html>
+

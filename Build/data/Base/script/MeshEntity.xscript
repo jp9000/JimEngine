@@ -1,0 +1,38 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  MeshEntity.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal abstract class MeshEntity : Entity
+{
+    property bool bUseLightmapping   <section="Lightmapping"> <description="Enables this entity to recieve lightmaps.\r\nNote that animated objects cannot be lightmapped.">;
+    property int  lightmapResolution <section="Lightmapping"> <type=scroller(2, 1024, 2)> <description="Sets the texture resolution for lightmaps.">;
+
+    bool bStaticGeometry;
+    bool bCastCompositeShadow;
+
+    internal void  SetMesh(string meshResource);
+
+    internal void  SetMeshAdjustPos(Vect posAdj);
+    internal void  SetMeshAdjustRot(Quat rotAdj);
+
+    internal Vect  GetMeshAdjustPos();
+    internal Quat  GetMeshAdjustRot();
+    
+    internal void SetScale(Vect scale);
+    internal void SetScale(float x, float y, float z);
+
+    internal Bounds GetMeshBounds();
+    internal Bounds GetInitialBounds();
+
+    internal Matrix GetTransform();
+    internal Matrix GetInvTransform();
+
+    internal bool HasValidMesh();
+
+    internal void SetMaterial(int textureID, Material material);
+};

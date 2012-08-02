@@ -1,0 +1,17 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  TexturedLine.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+
+internal class TexturedLine : Entity
+{
+    Vect pointA, pointB;
+    float width;
+    icolor color;
+
+    internal void SetLineTexture(Texture texture);
+};

@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li><a href="Serialization.html">Serialization</a></li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li class="test">Frame Objects</li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+<h2> Frame Objects (Object.h)</h2>
+
+<pre>class BASE_EXPORT FrameObject : public Object</pre>
+
+<p>Using this class allows you to take advantage of certain implementable functions that are called
+each frame for all objects created that are derived of this class.</p>
+
+<p>  All 2D (Window) and 3D (Entity) objects are derived from FrameObject.</p>
+
+<p>  Any class derived from FrameObject will default to non-renderable (unless derived from a renderable class).
+To set that object as a renderable object, then, for example, you would do this:</p>
+<pre class="example">
+class IAmMadeOf3DCheese : public Entity
+{
+    CLASS_DECLARE(IAmMadeOf3DCheese, Entity);
+    RENDERABLE(TRUE);
+    ...
+};
+</pre>
+
+<hr /><!--======================================================================-->
+
+<h3>SafeDestroy</h3>
+
+<p>  This will make a frame object automatically destroy itself next frame.  Very useful in things like particle systems
+where you might want some object to automatically destroy itself safely.</p>
+
+<pre>myExampleObject->SafeDestroy();</pre>
+
+<hr /><!--======================================================================-->
+
+<h3>FrameObject Implementable functions</h3>
+
+
+
+<pre>virtual void PreFrame()</pre>
+<p>  Called once right before the frame begins</p>
+
+<p>  Unless purposely trying to bypass a PreFrame() of a superclass always call Super::PreFrame();.</p>
+
+
+
+<pre>virtual void Tick(DWORD dwMS, float fSeconds)</pre>
+
+<p>  Called once per frame after PreFrame for each existing FrameObject that exists.</p>
+
+<p>  Unless purposely trying to bypass a Tick() of a superclass always call Super::Tick(dwTime, fSeconds);.</p>
+
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>JimEngine Documentation</title>
+<style type="text/css" media="screen">@import url('docs.css?3');</style>
+</head>
+<body>
+
+<div id="topthingy"><h1>JimEngine Quick-start docs/reference</h1></div>
+
+<div>
+<!--Important stuff-->
+<div id="navigation">
+    <ul>
+        <li><a href="Building.html">Building/Compiling</a></li><li><a href="SceneGraph.html">Scene Graph</a></li>
+        <li><a href="Memory.html">Memory Stuff</a></li>
+        <li><a href="Strings.html">Strings</a></li>
+        <li><a href="PlatformFunctions.html">Platform Functions</a></li>
+        <li><a href="Files.html">File I/O</a></li>
+        <li class="test">Serialization</li>
+        <li><a href="Lists.html">Lists</a></li>
+        <li><a href="Math.html">Math</a></li>
+        <li><a href="ConfigFile.html">Config Files</a></li>        
+        <li><a href="ObjectSystem.html">Object System</a></li>  <li><a href="Scripting.html">Scripting/Class Vars</a></li>
+        <li><a href="GraphicsSystem.html">Graphics System</a></li>
+        <li><a href="SoundSystem.html">Sound System</a></li>
+        <li><a href="Music.html">Music</a></li>
+        <li><a href="Input.html">Input System</a></li>
+        <li><a href="ResourceManager.html">Resource Management</a></li>
+        <li><a href="FrameObjects.html">Frame Objects</a></li>
+        <li><a href="2DInterface.html">2D Interface</a></li>
+        <li><a href="Entities.html">3D Entities</a></li>
+        <li><a href="MeshEntity.html">Mesh Entities</a></li>
+        <li><a href="AnimatedEntity.html">Animated Entities</a></li>
+        <li><a href="CharactersControllers.html">Characters/Controllers</a></li>
+        <li><a href="CamerasViewports.html">Cameras/Viewports</a></li>
+        <li><a href="Level.html">Levels</a></li>
+        <li><a href="Engine.html">Engine</a></li>
+        <li><a href="Game.html">Game</a></li>
+        <li><a href="GameModule.html">Game Module</a></li>
+        <li><a href="Overview.html">Overview</a></li>
+    </ul>
+</div>
+</div>
+
+<div id="rightthingy">
+
+<h2>Serialization classes (Serializer.h)</h2>
+
+<p>I use a pretty standard serialization class.  There are serializers available for file input/output and data input/output.</p>
+
+<p>Almost every type of object in the game is properly serializable.  Object-based items should use the Serialize function, structures
+can make their own serializer function or use a friend operator&lt;&lt; function, for example:</p>
+
+<pre class="example">
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, Vect &amp;v)
+{
+    return s &lt;&lt; v.x &lt;&lt; v.y &lt;&lt; v.z;
+}
+</pre>
+
+<p>Really, I love these things.</p>
+
+<hr /><!--======================================================================-->
+<h3>Serializer class</h3>
+
+<pre>class BASE_EXPORT Serializer</pre>
+
+<pre>
+Serializer()                        {}
+virtual ~Serializer()               {}
+
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, BYTE &amp;b)
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, char &amp;b)
+
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, WORD  &amp;w)
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, short &amp;w)
+
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, DWORD &amp;dw)
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, LONG  &amp;dw)
+
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, UINT  &amp;dw)
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, int   &amp;dw)
+
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, LONG64 &amp;qw)
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, QWORD &amp;qw)
+
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, float &amp;f)
+friend inline Serializer&amp; operator&lt;&lt;(Serializer &amp;s, double &amp;d)
+</pre>
+
+<hr /><!--======================================================================-->
+<h3>Serializer class implementable functions</h3>
+
+<pre>BOOL IsLoading()=0;</pre>
+<p>Return TRUE if the serialization is for reading, FALSE if for writing.</p>
+
+<pre>virtual void Serialize(LPVOID lpData, DWORD dwLength)=0;</pre>
+<p>Sends dwLength bytes of lpData to the serializer if writing, reads dwLength bytes into lpData if reading.</p>
+
+<pre>virtual BOOL DataPending() {return FALSE;}</pre>
+<p>Return TRUE if data is available for reading, otherwise FALSE.  This does not need to be implemented for classes that only write.</p>
+
+<pre>virtual BOOL Seek(long offset, DWORD seekType=SERIALIZE_SEEK_START) {return FALSE;}</pre>
+<p>Performs a seek.  seekType is the offset type of the seek, and can be one of the following values:</p>
+<pre class="example">
+SERIALIZE_SEEK_START
+SERIALIZE_SEEK_CURRENT
+SERIALIZE_SEEK_END
+</pre>
+<p>Should return TRUE or FALSE depending on whether the seek could be performed or not.</p>
+
+<hr /><!--======================================================================-->
+<h3>XFileInputSerializer class (XFile.h)</h3>
+<p>Use this class for serialization from files.</p>
+
+<pre>class BASE_EXPORT XFileInputSerializer : public Serializer</pre>
+
+<pre>BOOL Open(CTSTR lpFile)</pre>
+<p>Returns FALSE if the file does not exist, otherwise TRUE.</p>
+
+<pre>void Close()</pre>
+
+<hr /><!--======================================================================-->
+<h3>XFileOutputSerializer class (XFile.h)</h3>
+<p>Use this class for serialization to files.</p>
+
+<pre>class XFileOutputSerializer : public Serializer</pre>
+
+<pre>BOOL Open(CTSTR lpFile, DWORD dwCreationDisposition)</pre>
+<p>dwCreationDisposition can be one of the four following values:</p>
+<pre class="example">
+XFILE_CREATENEW
+XFILE_CREATEALWAYS
+XFILE_OPENEXISTING
+XFILE_OPENALWAYS
+</pre>
+
+<pre>void Close()</pre>
+
+
+<hr /><!--======================================================================-->
+<h3>BufferInputSerializer class (Template.h)</h3>
+<p>Reads from the buffer sent to the constructor.</p>
+
+<pre>class BASE_EXPORT BufferInputSerializer : public Serializer</pre>
+
+<pre>
+BufferInputSerializer(LPVOID pBuffer, DWORD dwSize)
+BufferInputSerializer(List&lt;BYTE&gt; &amp;InBuffer)
+</pre>
+
+
+<hr /><!--======================================================================-->
+<h3>BufferOutputSerializer class (Template.h)</h3>
+<p>Writes to a List&lt;BYTE&gt; buffer sent to the constructor.</p>
+
+<pre>class BASE_EXPORT BufferOutputSerializer : public Serializer</pre>
+
+<pre>BufferOutputSerializer(List&lt;BYTE&gt; &amp;InBuffer, BOOL bAppend=TRUE)</pre>
+<p>If bAppend is set to FALSE, it will clear the buffer before starting.</p>
+
+</div>
+
+</body>
+</html>
+

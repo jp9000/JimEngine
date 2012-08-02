@@ -1,0 +1,29 @@
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  Camera.xscript
+
+  Copyright (c) 2009, Hugh Bailey
+  All rights reserved.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+internal class Camera : Entity
+{
+    internal void SetPerspective(float fovy, float aspect, float znearIn, float zfarIn);
+    internal void SetFrustum(float leftIn, float rightIn, float topIn, float bottomIn, float znearIn, float zfarIn);
+    internal void SetOrtho(float leftIn, float rightIn, float topIn, float bottomIn, float znearIn, float zfarIn);
+
+    internal Viewport GetAssignedViewport();
+
+    internal void SetSoundCamera(bool bPlaySound);
+
+    internal bool IsPerspective();
+    internal bool IsSoundCamera();
+
+    internal void LoadProjectionTransform();
+};
+
+internal class UserCamera : Camera
+{
+    property float fFOV    <type=scroller(5.0f, 179.0f, 1.0f)> <section="Camera">;
+    property float fAspect <type=scroller(1.0f, 2.0f, 0.1f)>   <section="Camera">;
+};

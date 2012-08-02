@@ -1,0 +1,119 @@
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Decal
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+//=================================================================
+//  Internal Parameters
+//=================================================================
+
+uniform float4x4  ViewProj;
+uniform float4x4  World =
+{
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+};
+
+uniform float3    Scale = {1.0f, 1.0f, 1.0f};
+
+uniform float4x4  projMatrix;
+uniform texture2d projTexture;
+uniform float4    projPlane;
+uniform float     projStart;
+uniform float     projEnd;
+
+uniform float4    decalColor;
+
+uniform texture2d diffuseTexture;
+uniform texture2d normalMap;
+
+
+//=================================================================
+//  Sampler States
+//=================================================================
+
+samplerstate textureSampler
+{
+    AddressU  = Clamp;
+    AddressV  = Clamp;
+    Filter    = Anisotropic;
+};
+
+
+//=================================================================
+//  Vertex Input
+//=================================================================
+
+struct DecalVertex {
+    float4 Position : POSITION;
+    float3 Normal   : NORMAL;
+};
+
+struct PixelOutput {
+    float4 color : COLOR;
+};
+
+
+struct DecalData {
+    float4 Position    : POSITION;
+    float4 ProjCoords  : TEXCOORD0;
+    float3 Normal      : TEXCOORD1;
+};
+
+
+//=================================================================
+//  SH Pass
+//=================================================================
+
+DecalData DecalVS(DecalVertex input)
+{
+    DecalData PI;
+
+    float4 newPos   = input.Position;
+    newPos.xyz     *= Scale;
+
+    PI.Position     = mul(mul(newPos, World), ViewProj);
+    PI.ProjCoords   = mul(newPos, projMatrix);
+
+    float ems = projEnd-projStart;
+    PI.ProjCoords.z = ((dot(newPos, projPlane.xyz)-projPlane.w)-projStart)/ems;
+    PI.Normal = -input.Normal;
+
+    return PI;
+}
+
+PixelOutput DecalPS(DecalData PI)
+{
+    PixelOutput PO;
+
+    clip(PI.ProjCoords.z);
+    clip(-(PI.ProjCoords.z-1.0f));
+
+    float2 projUV = (PI.ProjCoords.xy/PI.ProjCoords.w);
+    clip(-(projUV-1.0f));
+    clip(projUV);
+
+    clip(dot(PI.Normal, projPlane.xyz));
+
+    float4 proj = projTexture.Sample(textureSampler, projUV);
+    PO.color = proj * decalColor;
+
+    return PO;
+}
+
+
+//=================================================================
+//  Technique
+//=================================================================
+
+technique Projector
+{
+    pass
+    {
+        VertexShader = DecalVS();
+        PixelShader  = DecalPS();
+    }
+}

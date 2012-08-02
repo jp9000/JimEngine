@@ -1,0 +1,157 @@
+
+uniform float4x4    ViewProj;
+uniform float4x4    World =
+{
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+};
+
+uniform float       Scale = 1.0f;
+
+uniform texture2d diffuseTexture;
+uniform texture2d illuminationMap = "Base:default/white.tga";
+uniform float3 illuminationColor = {0.0f, 0.0f, 0.0f};
+
+uniform float3 normVector;
+uniform float3 camDir;
+uniform float3 camPos;
+
+uniform texture2d   lightmap;
+
+samplerstate lmSampler
+{
+    AddressU  = Clamp;
+    AddressV  = Clamp;
+    Filter    = Linear;
+};
+
+struct SimpleVertex
+{
+    float4 Position      : POSITION;
+    float2 TexCoord      : TEXCOORD0;
+};
+
+struct SimpleVertexOut
+{
+    float4 Position      : POSITION;
+    float2 TexCoord      : TEXCOORD0;
+    float3 TexelOffset   : TEXCOORD1;
+};
+
+struct PixelOutput {
+    float4 color : COLOR;
+};
+
+SimpleVertexOut RadiosityEmsissivePassVS(SimpleVertex input, bool bProcessOcclusion)
+{
+    SimpleVertexOut PI;
+
+    float4 newPos = input.Position;
+    newPos.xyz    *= Scale;
+    
+    PI.Position = mul(newPos, ViewProj);
+    PI.TexCoord = input.TexCoord;
+    if(bProcessOcclusion)
+        PI.TexelOffset = mul(newPos, World)-camPos;//mul(input.Position, World)-camPos;
+    else
+        PI.TexelOffset = 0.0f;
+
+    return PI;
+}
+
+PixelOutput RadiosityEmsissivePassPS(SimpleVertexOut PI, bool bProcessOcclusion)
+{
+    PixelOutput PO;
+    
+    float3 diffuse = diffuseTexture.Sample(lmSampler, PI.TexCoord.xy);
+    float3 illumMap = illuminationMap.Sample(lmSampler, PI.TexCoord.xy);
+
+    PO.color.xyz = diffuse*illumMap*illuminationColor;
+    if(bProcessOcclusion)
+        PO.color.a = length(PI.TexelOffset);
+    else
+        PO.color.a = 1.0f;
+
+    return PO;
+}
+
+//----------------------------------------------------------------------------------------
+
+struct LightmapVertex
+{
+    float4 Position      : POSITION;
+    float2 TexCoord      : TEXCOORD0;
+    float2 LightmapCoord : TEXCOORD1;
+};
+
+struct LightmapVertexOut
+{
+    float4 Position      : POSITION;
+    float2 TexCoord      : TEXCOORD0;
+    float2 LightmapCoord : TEXCOORD1;
+    float3 TexelOffset   : TEXCOORD2;
+};
+
+LightmapVertexOut RadiosityLightmapVS(LightmapVertex input, bool bProcessOcclusion)
+{
+    LightmapVertexOut PI;
+
+    PI.Position      = mul(input.Position, ViewProj);
+    PI.TexCoord      = input.TexCoord;
+    if(bProcessOcclusion)
+        PI.TexelOffset = mul(input.Position, World)-camPos;
+    else
+        PI.TexelOffset = 0.0f;
+
+    PI.LightmapCoord.xy = input.LightmapCoord;
+
+    return PI;
+}
+
+PixelOutput RadiosityLightmapPS(LightmapVertexOut PI, bool bProcessOcclusion)
+{
+    PixelOutput PO;
+
+    float3 diffuse = diffuseTexture.Sample(lmSampler, PI.TexCoord.xy);
+    float3 LMVal = lightmap.Sample(lmSampler, PI.LightmapCoord);
+
+    PO.color.xyz = diffuse*LMVal;
+    if(bProcessOcclusion)
+        PO.color.a = length(PI.TexelOffset);
+    else
+        PO.color.a = 1.0f;
+
+    return PO;
+}
+
+//----------------------------------------------------------------------------------------
+
+technique RadiosityRender
+{
+    pass
+    {
+        VertexShader = RadiosityEmsissivePassVS(false);
+        PixelShader  = RadiosityEmsissivePassPS(false);
+    }
+    pass
+    {
+        VertexShader = RadiosityLightmapVS(false);
+        PixelShader  = RadiosityLightmapPS(false);
+    }
+}
+
+technique RadiosityRenderOcclusion
+{
+    pass
+    {
+        VertexShader = RadiosityEmsissivePassVS(true);
+        PixelShader  = RadiosityEmsissivePassPS(true);
+    }
+    pass
+    {
+        VertexShader = RadiosityLightmapVS(true);
+        PixelShader  = RadiosityLightmapPS(true);
+    }
+}
